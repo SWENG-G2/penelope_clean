@@ -41,6 +41,7 @@ public class BirdControllerTest {
     private static final String USER_IDENTITY = "user";
     private static PublicKey mockAdminPublicKey;
     private static PrivateKey mockAdminPrivateKey;
+    private Long testCampusId;
 
     @Autowired
     private MockMvc mockMvc;
@@ -78,6 +79,8 @@ public class BirdControllerTest {
         Campus campus = new Campus();
         campus.setName("test campus");
         campus.setAuthor(IDENTITY);
+        campus.setId(5345L);
+        testCampusId = campus.getId();
 
         campusRepository.save(campus);
     }
@@ -116,5 +119,35 @@ public class BirdControllerTest {
                 .andExpect(status().isNotFound());
 
     }
+
+    @Test
+    public void canCreateIfCampusIsThere() throws Exception {
+        // Get admin auth key
+        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 5345);
+
+        // Mock loading key
+        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
+
+        MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        parameters.add("name", "A");
+        parameters.add("listImageURL", "A");
+        parameters.add("heroImageURL", "A");
+        parameters.add("soundURL", "A");
+        parameters.add("aboutMe", "A");
+        parameters.add("aboutMeVideoURL", "A");
+        parameters.add("location", "A");
+        parameters.add("locationImageURL", "A");
+        parameters.add("diet", "A");
+        parameters.add("dietImageURL", "A");
+
+        MockHttpServletRequestBuilder request = post(formatAddress("new", Long.toString(testCampusId, 10))).header("IDENTITY", IDENTITY)
+                .header("KEY", key).params(parameters);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+
+    }
+
+
 
 }
