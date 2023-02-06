@@ -1,6 +1,8 @@
 package sweng.penelope.controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -11,7 +13,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Locale;
 
-import org.apache.catalina.User;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,13 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 
 import sweng.penelope.auth.RSAUtils;
 import sweng.penelope.entities.ApiKey;
@@ -77,7 +76,7 @@ public class BirdControllerTest {
     }
 
     @BeforeEach
-    public void setUpAdminIdentity() {
+    public void setUpAdminAndCampus() {
         ApiKey apiKey = new ApiKey();
 
         apiKey.setAdmin(true);
@@ -123,7 +122,8 @@ public class BirdControllerTest {
         parameters.add("diet", "A");
         parameters.add("dietImageURL", "A");
 
-        MockHttpServletRequestBuilder request = post(formatAddress("new", "42069")).header("IDENTITY", IDENTITY)
+        MockHttpServletRequestBuilder request = post(formatAddress("new", "42069"))
+                .header("IDENTITY", IDENTITY)
                 .header("KEY", key).params(parameters);
 
         mockMvc.perform(request)
@@ -160,7 +160,8 @@ public class BirdControllerTest {
         parameters.add("dietImageURL", "A");
 
         // Identity is not privileged; Credentials mismatch.
-        MockHttpServletRequestBuilder request = post(formatAddress("new", Long.toString(testCampusId, 10))).header("IDENTITY", USER_IDENTITY)
+        MockHttpServletRequestBuilder request = post(formatAddress("new", Long.toString(testCampusId, 10)))
+                .header("IDENTITY", USER_IDENTITY)
                 .header("KEY", key).params(parameters);
 
         mockMvc.perform(request)
@@ -189,7 +190,8 @@ public class BirdControllerTest {
         parameters.add("diet", "");
         parameters.add("dietImageURL", "");
 
-        MockHttpServletRequestBuilder request = post(formatAddress("new", Long.toString(testCampusId, 10))).header("IDENTITY", IDENTITY)
+        MockHttpServletRequestBuilder request = post(formatAddress("new", Long.toString(testCampusId, 10)))
+                .header("IDENTITY", IDENTITY)
                 .header("KEY", key).params(parameters);
 
         mockMvc.perform(request)
@@ -218,7 +220,8 @@ public class BirdControllerTest {
         parameters.add("diet", "A");
         parameters.add("dietImageURL", "A");
 
-        MockHttpServletRequestBuilder request = post(formatAddress("new", Long.toString(testCampusId, 10))).header("IDENTITY", IDENTITY)
+        MockHttpServletRequestBuilder request = post(formatAddress("new", Long.toString(testCampusId, 10)))
+                .header("IDENTITY", IDENTITY)
                 .header("KEY", key).params(parameters);
 
         mockMvc.perform(request)
@@ -237,7 +240,6 @@ public class BirdControllerTest {
         // Insert fake campus
         Campus temp_campus = new Campus();
         temp_campus.setName("test campus");
-        temp_campus.setId(1L);
         temp_campus.setAuthor(IDENTITY);
         campusRepository.save(temp_campus);
 
@@ -245,24 +247,65 @@ public class BirdControllerTest {
 
         // Insert fake bird
         Bird bird = new Bird();
-        bird.setId(1L);
         bird.setAuthor(IDENTITY);
         bird.setCampus(temp_campus);
-        // BROKEN
         birdRepository.save(bird);
-
-        // Get admin auth key
-        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, Math.toIntExact(testCampusId));
 
         // Bird parameters
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
         parameters.add("id", Long.toString(bird.getId(), 10));
 
-        MockHttpServletRequestBuilder request = delete(formatAddress("remove", Long.toString(testCampusId, 10))).header("IDENTITY", IDENTITY)
+        // Get admin auth key
+        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, Math.toIntExact(testCampusId));
+
+        MockHttpServletRequestBuilder request = delete(formatAddress("remove", Long.toString(testCampusId, 10)))
+                .header("IDENTITY", IDENTITY)
                 .header("KEY", key).params(parameters);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
+
+    }
+
+    @Test
+    public void canEditBirdWithCredentials() throws Exception{
+        // Mock loading key
+        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
+
+        // Insert fake campus
+        Campus temp_campus = new Campus();
+        temp_campus.setName("test campus");
+        temp_campus.setAuthor(IDENTITY);
+        campusRepository.save(temp_campus);
+
+        testCampusId = temp_campus.getId();
+
+        // Insert fake bird
+        Bird bird = new Bird();
+        bird.setAuthor(IDENTITY);
+        bird.setCampus(temp_campus);
+        bird.setName("Boris");
+        bird = birdRepository.save(bird);
+
+        // Bird parameters
+        MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        parameters.set("id", Long.toString(bird.getId(), 10));
+        parameters.set("name", "test name");
+
+        // Get admin auth key
+        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, Math.toIntExact(testCampusId));
+
+        MockHttpServletRequestBuilder request = patch(formatAddress("edit", Long.toString(testCampusId, 10)))
+                .header("IDENTITY", IDENTITY)
+                .header("KEY", key).params(parameters);
+
+        mockMvc.perform(request)
+                .andExpect(status().isOk());
+                
+        // Callback function
+        // If mbird present, do first lambda {}
+        // else mbird is not present, do second lambda {}
+        birdRepository.findById(bird.getId()).ifPresentOrElse(mbird -> {assertEquals("test name", mbird.getName());}, () -> {fail();});
 
     }
 
