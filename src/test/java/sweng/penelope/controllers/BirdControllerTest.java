@@ -230,7 +230,7 @@ public class BirdControllerTest {
     }
 
     @Test
-    public void canRemoveBirdWithCredentials() throws Exception{
+    public void canRemoveBirdWithCredentials() throws Exception {
         // Mock loading key
         Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
 
@@ -268,7 +268,7 @@ public class BirdControllerTest {
     }
 
     @Test
-    public void canEditBirdWithCredentials() throws Exception{
+    public void canEditBirdWithCredentials() throws Exception {
         // Mock loading key
         Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
 
