@@ -107,7 +107,6 @@ public class CampusControllerTest {
         .header("KEY", key)
         .param("name", "test campus");
 
-        // IDENTITY = admin ???
         mockMvc.perform(request)
                 .andExpectAll(status().isForbidden());
 
@@ -150,7 +149,32 @@ public class CampusControllerTest {
 
     }
 
+    @Test
+    public void cannotDeleteIfWrongId() throws Exception {
+        // Mock loading key
+        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
 
+        // Mock deleting key
+        Mockito.doReturn(true).when(storageService).removeKey(IDENTITY);
+        
+        // Insert fake campus
+        Campus campus = new Campus();
+        campus.setName("test campus");
+        campus.setAuthor(IDENTITY);
+        campusRepository.save(campus);
+        
+        // Get admin auth key
+        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
+
+        MockHttpServletRequestBuilder request = delete(baseAddress + "remove")
+        .header("IDENTITY", IDENTITY)
+        .header("KEY", key)
+        .param("id", "42069");
+
+        mockMvc.perform(request)
+                .andExpect(status().isNotFound());
+
+    }
 
 
 
