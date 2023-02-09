@@ -15,6 +15,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -101,15 +102,33 @@ public class CampusControllerTest {
 
         apiKeyRepository.save(apiKey);
 
+        // Identity is not privileged; Credentials mismatch.
         MockHttpServletRequestBuilder request = post(formatAddress("new", String.valueOf(1)))
         .header("IDENTITY", USER_IDENTITY)
         .header("KEY", key)
         .param("name", "test campus");
 
-        // CLIENT ERROR 400, NOT 200 if IDENTITY = admin
-        // Identity is not privileged; Credentials mismatch.
+        // CLIENT ERROR 400, NOT 200 if IDENTITY = admin ???
         mockMvc.perform(request)
                 .andExpectAll(status().isForbidden());
+
+    }
+
+    @Test
+    public void cannotCreateIfInvalidParameters() throws Exception {
+        // Get admin auth key
+        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 1);
+
+        // Mock loading key
+        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
+
+        MockHttpServletRequestBuilder request = post(formatAddress("new", String.valueOf(1)))
+        .header("IDENTITY", IDENTITY)
+        .header("KEY", key)
+        .param("name", "");
+
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
 
     }
 
