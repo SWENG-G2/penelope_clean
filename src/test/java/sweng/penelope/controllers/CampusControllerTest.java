@@ -8,8 +8,6 @@ import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Locale;
-import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -23,8 +21,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import sweng.penelope.auth.RSAUtils;
 import sweng.penelope.entities.ApiKey;
@@ -55,10 +51,6 @@ public class CampusControllerTest {
 
     @MockBean
     private StorageService storageService;
-
-    private static String formatAddress(String endPoint, String campusId) {
-        return String.format(Locale.getDefault(), baseAddress, campusId) + endPoint;
-    }
 
     @BeforeAll
     public static void setUpKeys() throws NoSuchAlgorithmException {
