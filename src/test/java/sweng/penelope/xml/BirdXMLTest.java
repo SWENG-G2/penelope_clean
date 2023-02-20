@@ -68,5 +68,29 @@ class BirdXMLTest {
         assertEquals(TEST_AUDIO_URL, audio.attributeValue("url"));
 
     }
-    
+
+    @Test
+    public void aboutMeIsCorrect() throws Exception {
+        BirdXML birdXML = new BirdXML(xmlConfiguration);
+        birdXML.addAboutMe(TEST_ABOUT_ME_VIDEO_URL, TEST_ABOUT_ME);
+
+        byte[] test_byte = birdXML.getBytes();
+        String xmlStr = new String(test_byte, StandardCharsets.UTF_8);
+        Document document = DocumentHelper.parseText(xmlStr);
+
+        Element presentation = document.getRootElement();
+        Element slide = presentation.element("slide");
+        Element video = slide.element("video");
+        Element text = slide.element("text");
+
+        if (slide == null || video == null || text == null) {
+            fail("Parameters are null");
+        }
+
+        assertEquals("About me", slide.attributeValue("title"));
+        assertEquals("AboutMeVideoLink.url", video.attributeValue("url"));
+        assertEquals("I love gym", text.getText());
+
+    }
+
 }
