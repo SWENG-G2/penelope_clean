@@ -117,4 +117,26 @@ class BirdXMLTest {
 
     }
 
+    @Test
+    public void locationIsCorrect() throws Exception {
+        BirdXML birdXML = new BirdXML(xmlConfiguration);
+        birdXML.addLocation(TEST_LOCATION_IMAGE_URL, TEST_LOCATION);
+
+        byte[] test_byte = birdXML.getBytes();
+        String xmlStr = new String(test_byte, StandardCharsets.UTF_8);
+        Document document = DocumentHelper.parseText(xmlStr);
+
+        Element presentation = document.getRootElement();
+        Element slide = presentation.element("slide");
+        Element image = slide.element("image");
+        Element text = slide.element("text");
+
+        if (slide == null || image == null || text == null) {
+            fail("Parameters are null");
+        }
+        assertEquals("Location", slide.attributeValue("title"));
+        assertEquals(TEST_LOCATION_IMAGE_URL, image.attributeValue("url"));
+        assertEquals(TEST_LOCATION, text.getText());
+    }
+
 }
