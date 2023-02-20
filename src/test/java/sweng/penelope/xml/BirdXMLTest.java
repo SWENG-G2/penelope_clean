@@ -63,5 +63,10 @@ class BirdXMLTest {
         if (slide == null || image == null || audio == null) {
             fail("Parameters are null");
         }
+        assertEquals("heroSlide", slide.attributeValue("title"));
+        assertEquals(TEST_IMAGE_URL, image.attributeValue("url"));
+        assertEquals(TEST_AUDIO_URL, audio.attributeValue("url"));
+
     }
+    
 }
