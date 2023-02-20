@@ -31,5 +31,39 @@ public class CampusXMLTest {
         assertEquals(correctDescription, actualDescription);
 
     }
-    
+
+    @Test
+    public void canAddBirdToCampusXml() throws Exception {
+        CampusXML campusXML = new CampusXML(xmlConfiguration);
+        campusXML.addBird(TEST_BIRD_NAME, TEST_BIRD_DESCRIPTION, TEST_BIRD_ID, TEST_BIRD_IMAGE_URL);
+
+        byte[] test_byte = campusXML.getBytes();
+        String xmlStr = new String(test_byte, StandardCharsets.UTF_8);
+        Document document = DocumentHelper.parseText(xmlStr);
+
+        Element presentation = document.getRootElement();
+        Element slide = presentation.element("slide");
+
+        assertNotEquals(null, slide);
+        assertEquals(Long.toString(TEST_BIRD_ID), slide.attributeValue("title"));
+
+        Element title = slide.element("text");
+        assertNotEquals(null, title);
+        assertEquals(TEST_BIRD_NAME, title.getText());
+
+        // retrieve children of "slide" that are "text"
+        List<Element> elements = slide.elements("text");
+        assertEquals(2, elements.size());
+
+        // assign second "text" element to "description"
+        Element description = elements.get(1);
+        assertNotEquals(null, description);
+        assertEquals(campusXML.formatDescription(TEST_BIRD_DESCRIPTION), description.getText());
+
+        Element image = slide.element("image");
+        assertNotEquals(null, image);
+        assertEquals(TEST_BIRD_IMAGE_URL, image.attributeValue("url"));
+
+    }
+
 }
