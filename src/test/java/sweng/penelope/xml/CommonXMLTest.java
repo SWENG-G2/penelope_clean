@@ -26,5 +26,31 @@ public class CommonXMLTest {
         assertEquals("1", commonXML.numSlidesString());
 
     }
-    
+
+    @Test
+    public void canCreateDocument() {
+        commonXML.createDocument();
+        Document document = commonXML.document;
+
+        assertNotEquals(null, document);
+        assertEquals("presentation", document.getRootElement().getName());
+        assertEquals("urn:SWENG", document.getRootElement().getNamespace().getText());
+
+        Element info = document.getRootElement().element("info");
+
+        assertNotEquals(null, info);
+        assertEquals("title", info.element("title").getName());
+        assertEquals(xmlConfiguration.getTitle(), info.elementText("title"));
+
+        assertEquals("author", info.element("author").getName());
+        assertEquals(xmlConfiguration.getAuthor(), info.elementText("author"));
+
+        assertEquals("date", info.element("date").getName());
+        assertNotEquals(null, info.elementText("date"));
+
+        assertEquals("numSlides", info.element("numSlides").getName());
+        assertEquals(commonXML.numSlidesString(), info.elementText("numSlides"));
+
+    }
+
 }
