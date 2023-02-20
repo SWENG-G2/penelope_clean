@@ -67,4 +67,18 @@ public class CommonXMLTest {
 
     }
 
+    @Test
+    public void canIncrementNumOfSlides() {
+        commonXML.createDocument();
+
+        assertEquals("0", commonXML.numSlidesString());
+
+        commonXML.incrementNumSlides();
+        assertEquals("1", commonXML.numSlidesString());
+
+        commonXML.incrementNumSlides();
+        assertEquals("2", commonXML.numSlidesString());
+
+    }
+
 }
