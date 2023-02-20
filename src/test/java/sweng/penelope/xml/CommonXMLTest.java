@@ -53,4 +53,18 @@ public class CommonXMLTest {
 
     }
 
+    @Test
+    public void canGetBytes() throws Exception {
+        commonXML.createDocument();
+
+        byte[] test_byte = commonXML.getBytes();
+
+        String xmlStr = new String(test_byte, StandardCharsets.UTF_8);
+        Document document = DocumentHelper.parseText(xmlStr);
+
+        Element root = document.getRootElement();
+        assertEquals("presentation", root.getName());
+
+    }
+
 }
