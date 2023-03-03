@@ -104,24 +104,24 @@ public class CampusControllerTest {
 
     }
 
-    // name /= "", needs fixing
-    // @Test
-    // public void cannotCreateIfParametersInvalid() throws Exception {
-    //     // Get admin auth key
-    //     String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
+    //name /= "", needs fixing
+    @Test
+    public void cannotCreateIfParametersInvalid() throws Exception {
+        // Get admin auth key
+        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
 
-    //     // Mock loading key
-    //     Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
+        // Mock loading key
+        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
 
-    //     MockHttpServletRequestBuilder request = post(baseAddress + "new")
-    //     .header("IDENTITY", IDENTITY)
-    //     .header("KEY", key)
-    //     .param("name", "");
+        MockHttpServletRequestBuilder request = post(baseAddress + "new")
+        .header("IDENTITY", IDENTITY)
+        .header("KEY", key)
+        .param("name", "");
 
-    //     mockMvc.perform(request)
-    //             .andExpect(status().is4xxClientError());
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
 
-    // }
+    }
 
     @Test
     public void canCreateIfEverythingValid() throws Exception {
