@@ -180,7 +180,7 @@ public class CampusControllerTest {
         Campus campus = new Campus();
         campus.setName("test campus");
         campus.setAuthor(IDENTITY);
-        campusRepository.save(campus);
+        campus = campusRepository.save(campus);
         
         // Get admin auth key
         String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
