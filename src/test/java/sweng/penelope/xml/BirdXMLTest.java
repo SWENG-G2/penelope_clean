@@ -2,7 +2,6 @@ package sweng.penelope.xml;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.nio.charset.StandardCharsets;
 
@@ -60,11 +59,13 @@ class BirdXMLTest {
         Element image = slide.element("image");
         Element audio = slide.element("audio");
 
-        if (slide == null || image == null || audio == null) {
-            fail("Parameters are null");
-        }
+        assertNotEquals(null, slide);
         assertEquals("heroSlide", slide.attributeValue("title"));
+
+        assertNotEquals(null, image);
         assertEquals(TEST_IMAGE_URL, image.attributeValue("url"));
+
+        assertNotEquals(null, audio);
         assertEquals(TEST_AUDIO_URL, audio.attributeValue("url"));
 
     }
@@ -83,12 +84,13 @@ class BirdXMLTest {
         Element video = slide.element("video");
         Element text = slide.element("text");
 
-        if (slide == null || video == null || text == null) {
-            fail("Parameters are null");
-        }
-
+        assertNotEquals(null, slide);
         assertEquals("About me", slide.attributeValue("title"));
+
+        assertNotEquals(null, video);
         assertEquals(TEST_ABOUT_ME_VIDEO_URL, video.attributeValue("url"));
+
+        assertNotEquals(null, text);
         assertEquals(TEST_ABOUT_ME, text.getText());
 
     }
@@ -107,12 +109,13 @@ class BirdXMLTest {
         Element image = slide.element("image");
         Element text = slide.element("text");
 
-        if (slide == null || image == null || text == null) {
-            fail("Parameters are null");
-        }
-
+        assertNotEquals(null, slide);
         assertEquals("Diet", slide.attributeValue("title"));
+
+        assertNotEquals(null, image);
         assertEquals(TEST_DIET_IMAGE_URL, image.attributeValue("url"));
+
+        assertNotEquals(null, text);
         assertEquals(TEST_DIET, text.getText());
 
     }
@@ -131,11 +134,13 @@ class BirdXMLTest {
         Element image = slide.element("image");
         Element text = slide.element("text");
 
-        if (slide == null || image == null || text == null) {
-            fail("Parameters are null");
-        }
+        assertNotEquals(null, slide);
         assertEquals("Location", slide.attributeValue("title"));
+
+        assertNotEquals(null, image);
         assertEquals(TEST_LOCATION_IMAGE_URL, image.attributeValue("url"));
+
+        assertNotEquals(null, text);
         assertEquals(TEST_LOCATION, text.getText());
     }
 
