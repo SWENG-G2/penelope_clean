@@ -81,7 +81,7 @@ public class CommonXML {
     /**
      * Creates the xml document via Dom4J utilities.
      */
-    private void createDocument() {
+    public void createDocument() {
         document = DocumentHelper.createDocument();
         // Add namespace
         presentation = document.addElement("presentation", "urn:SWENG").addNamespace("SWENG",

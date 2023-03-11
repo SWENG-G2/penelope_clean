@@ -22,7 +22,7 @@ public class CampusXML extends CommonXML {
      * @param description The text description
      * @return The clipped text description.
      */
-    private String formatDescription(String description) {
+    public String formatDescription(String description) {
         // Display max 50 chars
         String formattedDescription = description.substring(0, Math.min(description.length(), 50));
 
