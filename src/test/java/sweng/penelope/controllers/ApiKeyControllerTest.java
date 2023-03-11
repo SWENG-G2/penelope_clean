@@ -147,7 +147,7 @@ public class ApiKeyControllerTest {
         String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
         // Perform request
         mockMvc.perform(
-                delete(baseAddress + "remove").header("IDENTITY", IDENTITY).header("KEY", key).param("identity",
+                delete(baseAddress + "remove").header("IDENTITY", IDENTITY).header("KEY", key).param("targetIdentity",
                         USER_IDENTITY))
                 .andExpect(status().isOk());
     }
@@ -174,7 +174,7 @@ public class ApiKeyControllerTest {
         String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
         // Perform request
         mockMvc.perform(
-                patch(baseAddress + "addCampus").header("IDENTITY", IDENTITY).header("KEY", key).param("identity",
+                patch(baseAddress + "addCampus").header("IDENTITY", IDENTITY).header("KEY", key).param("targetIdentity",
                         USER_IDENTITY).param("campusId", "1"))
                 .andExpect(status().isOk());
     }
@@ -203,7 +203,7 @@ public class ApiKeyControllerTest {
         String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
         // Perform request
         mockMvc.perform(
-                patch(baseAddress + "removeCampus").header("IDENTITY", IDENTITY).header("KEY", key).param("identity",
+                patch(baseAddress + "removeCampus").header("IDENTITY", IDENTITY).header("KEY", key).param("targetIdentity",
                         USER_IDENTITY).param("campusId", Long.toString(campus.getId())))
                 .andExpect(status().isOk());
     }
