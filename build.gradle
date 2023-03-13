@@ -29,14 +29,9 @@ dependencies {
 
 test {
 	useJUnitPlatform()
-	ignoreFailures = true
 	finalizedBy jacocoTestReport
 }
 
 jacoco {
 	reportsDirectory = layout.buildDirectory.dir("jacocoReport")
-}
-
-jacocoTestReport {
-    dependsOn test
 }
