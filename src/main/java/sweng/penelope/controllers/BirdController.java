@@ -2,12 +2,16 @@ package sweng.penelope.controllers;
 
 import java.util.Optional;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,6 +42,7 @@ import sweng.penelope.repositories.CampusRepository;
         @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true, dataType = "java.lang.String"),
         @ApiImplicitParam(paramType = "header", name = "KEY", required = true, dataType = "java.lang.String")
 })
+@Validated
 public class BirdController {
     @Autowired
     private BirdRepository birdRepository;
@@ -68,16 +73,16 @@ public class BirdController {
     @ApiOperation("Creates a new Bird belonging to the relevant campus.")
     @PostMapping(path = "{campusId}/new")
     public ResponseEntity<String> newDuck(
-            @ApiParam(value = "The bird's name") @RequestParam String name,
-            @ApiParam(value = "URL to the image displayed in the birds list") @RequestParam String listImageURL,
-            @ApiParam(value = "URL to the main bird image") @RequestParam String heroImageURL,
-            @ApiParam(value = "URL to the bird's sound") @RequestParam String soundURL,
-            @ApiParam(value = "About the bird text information") @RequestParam String aboutMe,
-            @ApiParam(value = "URL to the bird's video") @RequestParam String aboutMeVideoURL,
-            @ApiParam(value = "Bird location text information") @RequestParam String location,
-            @ApiParam(value = "URL to the bird's location image") @RequestParam String locationImageURL,
-            @ApiParam(value = "Text information about the bird's diet") @RequestParam String diet,
-            @ApiParam(value = "URL to the bird's diet image") @RequestParam String dietImageURL,
+            @ApiParam(value = "The bird's name") @RequestParam @NotBlank @Size(max = 20) String name,
+            @ApiParam(value = "URL to the image displayed in the birds list") @RequestParam @NotBlank String listImageURL,
+            @ApiParam(value = "URL to the main bird image") @RequestParam @NotBlank String heroImageURL,
+            @ApiParam(value = "URL to the bird's sound") @RequestParam @NotBlank String soundURL,
+            @ApiParam(value = "About the bird text information") @RequestParam @NotBlank String aboutMe,
+            @ApiParam(value = "URL to the bird's video") @RequestParam @NotBlank String aboutMeVideoURL,
+            @ApiParam(value = "Bird location text information") @RequestParam @NotBlank String location,
+            @ApiParam(value = "URL to the bird's location image") @RequestParam @NotBlank String locationImageURL,
+            @ApiParam(value = "Text information about the bird's diet") @RequestParam @NotBlank String diet,
+            @ApiParam(value = "URL to the bird's diet image") @RequestParam @NotBlank String dietImageURL,
             @ApiParam(value = "ID of the campus the bird belongs to") @PathVariable Long campusId,
             @ApiIgnore Authentication authentication) {
 
@@ -85,9 +90,6 @@ public class BirdController {
 
         return campusRequest.map(campus -> {
             String author = ControllerUtils.getAuthorName(authentication, apiKeyRepository);
-
-            if (name.length() > 20)
-                return ResponseEntity.unprocessableEntity().body("The bird's name cannot exceed 20 characters");
 
             Bird bird = new Bird(name, listImageURL, heroImageURL, soundURL, aboutMe, aboutMeVideoURL, location,
                     locationImageURL,

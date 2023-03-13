@@ -45,6 +45,7 @@ public class BirdControllerTest {
     private static final String baseAddress = "/api/birds/%s/";
     private static final String IDENTITY = "admin";
     private static final String USER_IDENTITY = "user";
+    private static final String BAD_NAME = "123456789123456789123";
     private static PublicKey mockAdminPublicKey;
     private static PrivateKey mockAdminPrivateKey;
     private Long testCampusId;
@@ -179,7 +180,7 @@ public class BirdControllerTest {
 
         // Bird parameters
         MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
-        parameters.add("name", null);
+        parameters.add("name", "");
         parameters.add("listImageURL", "");
         parameters.add("heroImageURL", "");
         parameters.add("soundURL", "");
@@ -189,6 +190,36 @@ public class BirdControllerTest {
         parameters.add("locationImageURL", "");
         parameters.add("diet", "");
         parameters.add("dietImageURL", "");
+
+        MockHttpServletRequestBuilder request = post(formatAddress("new", Long.toString(testCampusId, 10)))
+                .header("IDENTITY", IDENTITY)
+                .header("KEY", key).params(parameters);
+
+        mockMvc.perform(request)
+                .andExpect(status().is4xxClientError());
+
+    }
+
+    @Test
+    public void cannotCreateIfNameTooLong() throws Exception {
+        // Get admin auth key
+        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, Math.toIntExact(testCampusId));
+
+        // Mock loading key
+        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
+
+        // Bird parameters
+        MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+        parameters.add("name", BAD_NAME);
+        parameters.add("listImageURL", "A");
+        parameters.add("heroImageURL", "A");
+        parameters.add("soundURL", "A");
+        parameters.add("aboutMe", "A");
+        parameters.add("aboutMeVideoURL", "A");
+        parameters.add("location", "A");
+        parameters.add("locationImageURL", "A");
+        parameters.add("diet", "A");
+        parameters.add("dietImageURL", "A");
 
         MockHttpServletRequestBuilder request = post(formatAddress("new", Long.toString(testCampusId, 10)))
                 .header("IDENTITY", IDENTITY)
