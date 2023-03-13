@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.security.PrivateKey;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
@@ -92,8 +91,10 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public boolean storeProcessedImage(String fileName, String campusId, BufferedImage image) {
-        File outFile = Paths.get(baseString, "image", campusId, fileName).toFile();
+        Path destinationRoot = Paths.get(baseString, "image", campusId);
+        File outFile = destinationRoot.resolve(fileName).toFile();
         try {
+            createDir(destinationRoot);
             ImageIO.write(image, "png", outFile);
             return true;
         } catch (IOException ioException) {
@@ -154,7 +155,6 @@ public class FileSystemStorageService implements StorageService {
             Campus campus = requestCampus.get();
             XMLConfiguration xmlConfiguration = new XMLConfiguration(campus.getAuthor(), campus.getName(), id);
             campusXML = new CampusXML(xmlConfiguration);
-
             Iterator<Bird> birdsIterator = campus.getBirds().iterator();
             while (birdsIterator.hasNext()) {
                 Bird bird = birdsIterator.next();
