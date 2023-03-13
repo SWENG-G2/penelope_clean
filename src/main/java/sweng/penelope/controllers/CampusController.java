@@ -1,6 +1,11 @@
 package sweng.penelope.controllers;
 
+import java.util.List;
 import java.util.Optional;
+
+import javax.validation.ConstraintViolationException;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
@@ -8,7 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,6 +41,7 @@ import sweng.penelope.repositories.CampusRepository;
         @ApiImplicitParam(paramType = "header", name = "IDENTITY", required = true, dataType = "java.lang.String"),
         @ApiImplicitParam(paramType = "header", name = "KEY", required = true, dataType = "java.lang.String")
 })
+@Validated
 public class CampusController {
     @Autowired
     private CampusRepository campusRepository;
@@ -51,7 +59,7 @@ public class CampusController {
      */
     @PostMapping(path = "/new")
     @ApiOperation("Creates a new campus")
-    public ResponseEntity<String> newCampus(@ApiParam("The campus name") @RequestParam String name,
+    public ResponseEntity<String> newCampus(@ApiParam("The campus name") @RequestParam() @NotBlank String name,
             @ApiIgnore Authentication authentication) {
         Campus campus = new Campus();
         String author = ControllerUtils.getAuthorName(authentication, apiKeyRepository);

@@ -104,7 +104,6 @@ public class CampusControllerTest {
 
     }
 
-    //name /= "", needs fixing
     @Test
     public void cannotCreateIfParametersInvalid() throws Exception {
         // Get admin auth key
