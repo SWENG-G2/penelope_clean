@@ -11,11 +11,14 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 
+import lombok.Getter;
+
 /**
  * <code>CommonXML</code> is a class that provides and handles common aspects to
  * all xml classes.
  */
 public class CommonXML {
+    @Getter
     protected Document document;
     protected Element presentation;
     protected Element info;
@@ -81,7 +84,7 @@ public class CommonXML {
     /**
      * Creates the xml document via Dom4J utilities.
      */
-    public void createDocument() {
+    private void createDocument() {
         document = DocumentHelper.createDocument();
         // Add namespace
         presentation = document.addElement("presentation", "urn:SWENG").addNamespace("SWENG",
