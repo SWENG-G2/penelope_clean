@@ -53,7 +53,7 @@ public class FileDownloadController {
             return provideResponse(resource, MediaType.APPLICATION_XML);
         }
 
-        return ResponseEntity.internalServerError().body(null);
+        return ResponseEntity.notFound().build();
     }
 
     /**

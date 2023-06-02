@@ -59,9 +59,10 @@ public class CampusController {
         campus.setName(name);
         campus.setAuthor(author);
 
-        campusRepository.save(campus);
+        campus = campusRepository.save(campus);
 
         CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES_LIST, null);
+        CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, campus.getId());
 
         return ResponseEntity.ok()
                 .body(String.format("New campus \"%s\" (id: %d) stored in database.%n", name, campus.getId()));
