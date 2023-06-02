@@ -28,7 +28,6 @@ import io.swagger.annotations.ApiParam;
 import springfox.documentation.annotations.ApiIgnore;
 import sweng.penelope.entities.Bird;
 import sweng.penelope.entities.Campus;
-import sweng.penelope.repositories.ApiKeyRepository;
 import sweng.penelope.repositories.BirdRepository;
 import sweng.penelope.repositories.CampusRepository;
 
@@ -46,8 +45,6 @@ import sweng.penelope.repositories.CampusRepository;
 public class BirdController {
     @Autowired
     private BirdRepository birdRepository;
-    @Autowired
-    private ApiKeyRepository apiKeyRepository;
     @Autowired
     private CampusRepository campusRepository;
     @Autowired
@@ -89,7 +86,7 @@ public class BirdController {
         Optional<Campus> campusRequest = campusRepository.findById(campusId);
 
         return campusRequest.map(campus -> {
-            String author = ControllerUtils.getAuthorName(authentication, apiKeyRepository);
+            String author = ControllerUtils.getAuthorName(authentication);
 
             Bird bird = new Bird(name, listImageURL, heroImageURL, soundURL, aboutMe, aboutMeVideoURL, location,
                     locationImageURL,
@@ -139,7 +136,7 @@ public class BirdController {
         Optional<Bird> requestBird = birdRepository.findById(id);
         if (requestBird.isPresent()) {
             Bird bird = requestBird.get();
-            String author = ControllerUtils.getAuthorName(authentication, apiKeyRepository);
+            String author = ControllerUtils.getAuthorName(authentication);
             Long previousCampus = bird.getCampus().getId();
 
             // This is 7yo writing python code quality. Look into
@@ -181,7 +178,7 @@ public class BirdController {
 
             return ResponseEntity.ok().body(String.format("Bird \"%s\" updated%n", bird.getName()));
         } else
-            return ResponseEntity.notFound().build(); //responses.notFound(String.format("Bird %d not found. Nothing to do here...%n", id));
+            return ResponseEntity.notFound().build();
     }
 
     /**
