@@ -142,13 +142,13 @@ public class FileSystemStorageServiceTest {
     public void canStoreFile() throws Exception {
         MockMultipartFile mpf = new MockMultipartFile("file", IMAGE_NAME, MediaType.IMAGE_PNG_VALUE,
                 "content".getBytes());
-        boolean canStoreImage = classUnderTest.store("image", "1", mpf, "image.png");
+        boolean canStoreImage = classUnderTest.store("image", "1", mpf, IMAGE_NAME);
 
         mpf = new MockMultipartFile("file", VIDEO_NAME, VIDEO_MIME_TYPE, "content".getBytes());
-        boolean canStoreVideo = classUnderTest.store("video", "1", mpf, "video.mp4");
+        boolean canStoreVideo = classUnderTest.store("video", "1", mpf, VIDEO_NAME);
 
         mpf = new MockMultipartFile("file", AUDIO_NAME, AUDIO_MIME_TYPE, "content".getBytes());
-        boolean canStoreAudio = classUnderTest.store("audio", "1", mpf, "audio.mp3");
+        boolean canStoreAudio = classUnderTest.store("audio", "1", mpf, AUDIO_NAME);
 
         assertTrue(canStoreImage);
         assertTrue(canStoreVideo);
@@ -163,6 +163,33 @@ public class FileSystemStorageServiceTest {
         boolean failsToStore = classUnderTest.store("image", "1", mpf, "");
 
         assertFalse(failsToStore);
+    }
+
+    @Test
+    public void canRemoveFile() throws Exception {
+        MockMultipartFile mpf = new MockMultipartFile("file", IMAGE_NAME, MediaType.IMAGE_PNG_VALUE,
+                "content".getBytes());
+        classUnderTest.store("image", "1", mpf, IMAGE_NAME);
+        boolean canRemoveImage = classUnderTest.remove("image/1/" + IMAGE_NAME);
+
+        mpf = new MockMultipartFile("file", VIDEO_NAME, VIDEO_MIME_TYPE, "content".getBytes());
+        classUnderTest.store("video", "1", mpf, VIDEO_NAME);
+        boolean canRemoveVideo = classUnderTest.remove("video/1/" + VIDEO_NAME);
+
+        mpf = new MockMultipartFile("file", AUDIO_NAME, AUDIO_MIME_TYPE, "content".getBytes());
+        classUnderTest.store("audio", "1", mpf, AUDIO_NAME);
+        boolean canRemoveAudio = classUnderTest.remove("audio/1/" + AUDIO_NAME);
+
+        assertTrue(canRemoveImage);
+        assertTrue(canRemoveVideo);
+        assertTrue(canRemoveAudio);
+    }
+
+    @Test
+    public void cannotRemoveMissingFile() {
+        boolean canRemoveMissingFile = classUnderTest.remove("a/file/path/file.png");
+
+        assertFalse(canRemoveMissingFile);
     }
 
     @Test

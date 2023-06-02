@@ -304,6 +304,7 @@ public class BirdControllerTest {
                 MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
                 parameters.set("id", bird.getId().toString());
                 parameters.set("name", "test name");
+                parameters.set("heroImageURL", "hero");
 
                 MockHttpServletRequestBuilder request = patch(formatAddress("edit", testCampusID))
                                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
@@ -315,8 +316,9 @@ public class BirdControllerTest {
                 // Callback function
                 // If mbird present, do first lambda {}
                 // else mbird is not present, do second lambda {}
-                birdRepository.findById(bird.getId()).ifPresentOrElse(mbird -> {
-                        assertEquals("test name", mbird.getName());
+                birdRepository.findById(bird.getId()).ifPresentOrElse(mBird -> {
+                        assertEquals("test name", mBird.getName());
+                        assertEquals("hero", mBird.getHeroImageURL());
                 }, () -> {
                         fail();
                 });

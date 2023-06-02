@@ -30,6 +30,7 @@ import sweng.penelope.entities.Bird;
 import sweng.penelope.entities.Campus;
 import sweng.penelope.repositories.BirdRepository;
 import sweng.penelope.repositories.CampusRepository;
+import sweng.penelope.services.StorageService;
 
 /**
  * <code>BirdController</code> handles all Bird endpoints.
@@ -47,6 +48,8 @@ public class BirdController {
     private BirdRepository birdRepository;
     @Autowired
     private CampusRepository campusRepository;
+    @Autowired
+    private StorageService storageService;
     @Autowired
     private CacheManager cacheManager;
 
@@ -155,12 +158,24 @@ public class BirdController {
             @ApiIgnore Authentication authentication) {
 
         Optional<Bird> requestBird = birdRepository.findById(id);
-        if (requestBird.isPresent()) {
-            Bird bird = requestBird.get();
+        return requestBird.map(bird -> {
             String author = ControllerUtils.getAuthorName(authentication);
             Long previousCampus = bird.getCampus().getId();
 
             evictBirdAssetsCache(bird);
+
+            String oldHeroImageURL = bird.getHeroImageURL();
+            String oldSoundURL = bird.getSoundURL();
+            String oldAboutMeVideoURL = bird.getAboutMeVideoURL();
+            String oldLocationImageURL = bird.getLocationImageURL();
+            String oldDietImageURL = bird.getDietImageURL();
+
+            // Remove old assets
+            heroImageURL.ifPresent(s -> storageService.remove(oldHeroImageURL));
+            soundURL.ifPresent(s -> storageService.remove(oldSoundURL));
+            aboutMeVideoURL.ifPresent(s -> storageService.remove(oldAboutMeVideoURL));
+            locationImageURL.ifPresent(s -> storageService.remove(oldLocationImageURL));
+            dietImageURL.ifPresent(s -> storageService.remove(oldDietImageURL));
 
             // Update fields
             bird.setName(name.orElse(bird.getName()));
@@ -190,8 +205,7 @@ public class BirdController {
             CacheUtils.evictCache(cacheManager, CacheUtils.BIRDS, bird.getId());
 
             return ResponseEntity.ok().body(String.format("Bird \"%s\" updated%n", bird.getName()));
-        } else
-            return ResponseEntity.notFound().build();
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     /**

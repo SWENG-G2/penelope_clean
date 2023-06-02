@@ -29,6 +29,8 @@ public interface StorageService {
 	 */
 	boolean store(String type, String campusId, MultipartFile file, String fileName);
 
+	boolean remove(String fileUrl);
+
 	/**
 	 * Stores an image as a round PNG.
 	 * 

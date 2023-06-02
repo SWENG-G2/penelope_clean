@@ -96,6 +96,20 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
+    public boolean remove(String fileUrl) {
+        Path storeRoot = Paths.get(baseString);
+        Path filePath = storeRoot.resolve(fileUrl);
+        try {
+            Files.delete(filePath);
+
+            return true;
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
     public boolean storeProcessedImage(String fileName, String campusId, BufferedImage image) {
         Path destinationRoot = Paths.get(baseString, "image", campusId);
         File outFile = Paths.get(baseString, "image", campusId, fileName).toFile();
