@@ -133,7 +133,7 @@ public class FileDownloadController {
      * @return {@link ResponseEntity}
      */
     @GetMapping(path = "/{type}/{campusId}/{fileName}")
-    @Cacheable(value = CacheUtils.ASSETS, key = "#fileName")
+    @Cacheable(value = CacheUtils.ASSETS, key = "#type.concat('/').concat(#campusId).concat('/').concat(#fileName)")
     @ApiOperation("Returns the desired asset.")
     public ResponseEntity<Resource> serveAsset(
             @ApiParam(value = "The asset type", allowableValues = "image, video, audio") @PathVariable String type,

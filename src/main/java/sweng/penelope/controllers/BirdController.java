@@ -51,6 +51,24 @@ public class BirdController {
     private CacheManager cacheManager;
 
     /**
+     * Removes cache for Bird's assets
+     * 
+     * @param bird The bird to evict assets' cache for.
+     */
+    private void evictBirdAssetsCache(Bird bird) {
+        // Hero
+        CacheUtils.evictCache(cacheManager, CacheUtils.ASSETS, bird.getHeroImageURL());
+        // Sound
+        CacheUtils.evictCache(cacheManager, CacheUtils.ASSETS, bird.getSoundURL());
+        // Video
+        CacheUtils.evictCache(cacheManager, CacheUtils.ASSETS, bird.getAboutMeVideoURL());
+        // Location
+        CacheUtils.evictCache(cacheManager, CacheUtils.ASSETS, bird.getLocationImageURL());
+        // Diet
+        CacheUtils.evictCache(cacheManager, CacheUtils.ASSETS, bird.getDietImageURL());
+    }
+
+    /**
      * Creates a new Bird belonging to the relevant campus.
      * 
      * @param name             The bird's name
@@ -92,9 +110,12 @@ public class BirdController {
                     locationImageURL,
                     diet, dietImageURL, campus, author);
 
-            birdRepository.save(bird);
+            bird = birdRepository.save(bird);
 
             CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, campusId);
+            CacheUtils.evictCache(cacheManager, CacheUtils.BIRDS, bird.getId());
+
+            evictBirdAssetsCache(bird);
 
             return ResponseEntity.ok().body(String.format("Bird \"%s\" created with id %d%n", name, bird.getId()));
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -166,7 +187,7 @@ public class BirdController {
 
             bird.setAuthor(currentAuthors);
 
-            birdRepository.save(bird);
+            bird = birdRepository.save(bird);
 
             Long currentCampus = bird.getCampus().getId();
             if (!currentCampus.equals(previousCampus))
@@ -175,6 +196,8 @@ public class BirdController {
             CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, previousCampus);
 
             CacheUtils.evictCache(cacheManager, CacheUtils.BIRDS, bird.getId());
+
+            evictBirdAssetsCache(bird);
 
             return ResponseEntity.ok().body(String.format("Bird \"%s\" updated%n", bird.getName()));
         } else
