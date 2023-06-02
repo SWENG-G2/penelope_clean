@@ -24,19 +24,19 @@ public class CampusesListXML extends CommonXML {
      */
     public void addCampus(String name, Long id) {
         Element campusSlide = presentation.addElement("slide").addAttribute(WIDTH, SLIDE_WIDTH)
-                .addAttribute(HEIGHT, "120")
+                .addAttribute(HEIGHT, "60")
                 .addAttribute("title", Long.toString(id));
 
         // Campus Name
-        campusSlide.addElement("text").addAttribute(FONT_NAME, FONT).addAttribute(FONT_SIZE, FONT_SIZE_TITLE)
+        campusSlide.addElement("text").addAttribute(FONT_NAME, FONT).addAttribute(FONT_SIZE, FONT_SIZE_TITLE_SM)
                 .addAttribute(COLOUR, BLACK).addAttribute(X_COORDINATE, "100")
-                .addAttribute(Y_COORDINATE, "45").addAttribute(WIDTH, MATCH_PARENT).addAttribute(HEIGHT, WRAP_CONTENT)
+                .addAttribute(Y_COORDINATE, "5").addAttribute(WIDTH, MATCH_PARENT).addAttribute(HEIGHT, WRAP_CONTENT)
                 .addText(name);
 
         // Bottom border
-        campusSlide.addElement("line").addAttribute("thickness", "5")
-                .addAttribute(FROM_X, "100").addAttribute(FROM_Y, "120").addAttribute(TO_X, "1820")
-                .addAttribute(TO_Y, "120")
+        campusSlide.addElement("line").addAttribute("thickness", "2")
+                .addAttribute(FROM_X, "100").addAttribute(FROM_Y, "60").addAttribute(TO_X, "1820")
+                .addAttribute(TO_Y, "60")
                 .addAttribute(COLOUR, DARK_GRAY);
 
         incrementNumSlides();
