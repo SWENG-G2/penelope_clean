@@ -14,19 +14,23 @@ import javax.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * <code>DataManager</code> JPA Entity
+ */
 @Entity
 @Getter
 @Setter
-public class ApiKey {
+public class DataManager {
     @Id
-    private String identity;
+    @Column(nullable = false, unique = true)
+    private String username;
 
-    private String ownerName;
+    @Column(nullable = false)
+    private String password;
 
-    @Column(columnDefinition = "boolean default false")
-    private Boolean admin;
+    private boolean sysadmin;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "apikeys_campus_rights", joinColumns = @JoinColumn(name = "public_key"), inverseJoinColumns = @JoinColumn(name = "campus_id"))
+    @JoinTable(name = "user_campus_rights", joinColumns = @JoinColumn(name = "username"), inverseJoinColumns = @JoinColumn(name = "campus_id"))
     private Set<Campus> campuses = new HashSet<>();
 }
