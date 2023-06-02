@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
+import javax.validation.Path.Node;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -18,7 +19,11 @@ public class ControllersExceptionHandler extends ResponseEntityExceptionHandler 
         StringBuilder sb = new StringBuilder();
 
         violations.forEach(violation -> {
-            sb.append(violation.getMessage() + "\n");
+            String parameterName = null;
+            for (Node node : violation.getPropertyPath()) {
+                parameterName = node.getName();
+            }
+            sb.append(parameterName + ": " + violation.getMessage() + "\n");
         });
 
         return ResponseEntity.badRequest().body(sb.toString());
