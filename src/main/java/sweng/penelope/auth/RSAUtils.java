@@ -3,15 +3,12 @@ package sweng.penelope.auth;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
-import java.security.spec.EncodedKeySpec;
-import java.security.spec.InvalidKeySpecException;
+import java.security.PublicKey;
 import java.security.spec.MGF1ParameterSpec;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
 import javax.crypto.BadPaddingException;
@@ -46,22 +43,6 @@ public class RSAUtils {
     }
 
     /**
-     * Regenerates a {@link PrivateKey} object from a byte array.
-     * 
-     * @param privateKeyBytes The array containing key information
-     * @return {@link PrivateKey} contained in the byte array.
-     * @throws NoSuchAlgorithmException
-     * @throws InvalidKeySpecException
-     */
-    public static PrivateKey regeneratePrivateKey(byte[] privateKeyBytes)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-        KeyFactory keyFactory = KeyFactory.getInstance(ALGORITHM);
-        EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-
-        return keyFactory.generatePrivate(privateKeySpec);
-    }
-
-    /**
      * Decrypts an encrypted message.
      * 
      * @param privateKey {@link PrivateKey} corresponding to the
@@ -88,4 +69,19 @@ public class RSAUtils {
 
         return new String(decryptedInput, StandardCharsets.UTF_8);
     }
+
+    public static String encrypt(PublicKey publicKey, String input) throws NoSuchAlgorithmException,
+        NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException,
+        InvalidAlgorithmParameterException {
+
+    Cipher cipher = Cipher.getInstance(CYPHER);
+    cipher.init(Cipher.ENCRYPT_MODE, publicKey,
+            new OAEPParameterSpec("SHA-256", "MGF1", MGF1ParameterSpec.SHA256, PSource.PSpecified.DEFAULT));
+
+    byte[] inputBytes = input.getBytes(StandardCharsets.UTF_8);
+    byte[] encryptedInput = cipher.doFinal(inputBytes);
+
+    return Base64.getEncoder().encodeToString(encryptedInput);
+}
+
 }

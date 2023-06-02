@@ -5,27 +5,27 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Locale;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import sweng.penelope.auth.RSAUtils;
-import sweng.penelope.entities.ApiKey;
+import sweng.penelope.entities.DataManager;
 import sweng.penelope.entities.Campus;
-import sweng.penelope.repositories.ApiKeyRepository;
+import sweng.penelope.repositories.DataManagerRepository;
 import sweng.penelope.repositories.CampusRepository;
 import sweng.penelope.services.StorageService;
 
@@ -33,165 +33,138 @@ import sweng.penelope.services.StorageService;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class CampusControllerTest {
-    
-    private static final String baseAddress = "/api/campus/";
-    private static final String IDENTITY = "admin";
-    private static final String USER_IDENTITY = "user";
-    private static PublicKey mockAdminPublicKey;
-    private static PrivateKey mockAdminPrivateKey;
 
-    @Autowired
-    private MockMvc mockMvc;
+        private static final String baseAddress = "/api/campus/%s/";
+        private static final String USERNAME = "admin";
+        private static final String PASSWORD = "qwerty123456";
+        private static final String TIMESTAMP = ZonedDateTime.now(ZoneId.of("Europe/London")).toString();
 
-    @Autowired
-    private ApiKeyRepository apiKeyRepository;
+        private String ENCODED_PASSWORD, CREDENTIALS, ENCRYPTED_CREDENTIALS;
+        private String testCampusID;
+        private DataManager dataManager;
 
-    @Autowired
-    private CampusRepository campusRepository;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockBean
-    private StorageService storageService;
+        @Autowired
+        private DataManagerRepository dataManagerRepository;
 
-    @BeforeAll
-    public static void setUpKeys() throws NoSuchAlgorithmException {
-        KeyPair keys = RSAUtils.generateKeys();
-        mockAdminPrivateKey = keys.getPrivate();
-        mockAdminPublicKey = keys.getPublic();
-    }
+        @Autowired
+        private PasswordEncoder passwordEncoder;
 
-    @BeforeEach
-    public void setUpAdminIdentity() {
-        ApiKey apiKey = new ApiKey();
+        @Autowired
+        private KeyPair keyPair;
 
-        apiKey.setAdmin(true);
-        apiKey.setIdentity(IDENTITY);
-        apiKey.setOwnerName("The testing admin");
+        @Autowired
+        private CampusRepository campusRepository;
 
-        apiKeyRepository.save(apiKey);
-    }
+        @MockBean
+        private StorageService storageService;
 
-    @AfterEach
-    public void cleanUp() {
-        // Clean all
-        apiKeyRepository.deleteAll();
-        campusRepository.deleteAll();
-    }
+        @Value("${penelope.api-credentialsHeader}")
+        private String credentialsHeader;
 
-    @Test
-    public void cannotCreateIfNotAdmin() throws Exception {
-        // Get admin auth key
-        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
+        private String formatAddress(String value) {
+                return String.format(Locale.getDefault(), baseAddress, value);
+        }
 
-        // Mock loading key
-        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
+        @BeforeEach
+        public void setUpAdminCredentials() throws Exception {
+                this.CREDENTIALS = USERNAME + "=" + PASSWORD + "=" + TIMESTAMP;
+                this.ENCRYPTED_CREDENTIALS = RSAUtils.encrypt(keyPair.getPublic(), CREDENTIALS);
+                this.ENCODED_PASSWORD = passwordEncoder.encode(PASSWORD);
 
-        // Insert fake user
-        ApiKey apiKey = new ApiKey();
-        apiKey.setAdmin(false);
-        apiKey.setOwnerName("testing user");
-        apiKey.setIdentity(USER_IDENTITY);
+                this.dataManager = new DataManager();
+                this.dataManager.setUsername(USERNAME);
+                this.dataManager.setPassword(ENCODED_PASSWORD);
+                this.dataManager.setSysadmin(true);
+                dataManagerRepository.save(dataManager);
+        }
 
-        apiKeyRepository.save(apiKey);
+        @AfterEach
+        public void cleanUp() {
+                // Clean all
+                dataManagerRepository.deleteAll();
+                campusRepository.deleteAll();
+        }
 
-        // Identity is not privileged; Credentials mismatch.
-        MockHttpServletRequestBuilder request = post(baseAddress + "new")
-        .header("IDENTITY", USER_IDENTITY)
-        .header("KEY", key)
-        .param("name", "test campus");
+        @Test
+        public void cannotCreateIfNotAdmin() throws Exception {
+                // Insert a user
+                String testUsername = "User123";
+                String testPassword = passwordEncoder.encode("Password123");
+                DataManager testUser = new DataManager();
+                testUser.setUsername(testUsername);
+                testUser.setPassword(testPassword);
+                testUser.setSysadmin(false);
+                testUser = dataManagerRepository.save(testUser);
 
-        mockMvc.perform(request)
-                .andExpect(status().isForbidden());
+                String testCredentials = testUsername + "=" + "Password123" + "=" + TIMESTAMP;
+                String testEncryptedCredentials = RSAUtils.encrypt(keyPair.getPublic(), testCredentials);
 
-    }
+                MockHttpServletRequestBuilder request = post(formatAddress("new"))
+                                .header(credentialsHeader.toLowerCase(), testEncryptedCredentials)
+                                .param("name", "test campus").secure(true);
 
-    @Test
-    public void cannotCreateIfParametersInvalid() throws Exception {
-        // Get admin auth key
-        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
+                mockMvc.perform(request)
+                                .andExpect(status().isForbidden());
+        }
 
-        // Mock loading key
-        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
+        @Test
+        public void cannotCreateIfParametersInvalid() throws Exception {
+                MockHttpServletRequestBuilder request = post(formatAddress("new"))
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS).secure(true);
+                // Simulate a campus without a name
+                // .param("name", "")
 
-        MockHttpServletRequestBuilder request = post(baseAddress + "new")
-        .header("IDENTITY", IDENTITY)
-        .header("KEY", key)
-        .param("name", "");
+                mockMvc.perform(request)
+                                .andExpect(status().is4xxClientError());
+        }
 
-        mockMvc.perform(request)
-                .andExpect(status().is4xxClientError());
+        @Test
+        public void canCreateIfEverythingValid() throws Exception {
+                MockHttpServletRequestBuilder request = post(formatAddress("new"))
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
+                                .param("name", "test campus").secure(true);
 
-    }
+                mockMvc.perform(request)
+                                .andExpect(status().isOk());
+        }
 
-    @Test
-    public void canCreateIfEverythingValid() throws Exception {
-        // Get admin auth key
-        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
+        @Test
+        public void cannotDeleteIfWrongID() throws Exception {
+                // Insert fake campus
+                Campus temp_campus = new Campus();
+                temp_campus.setName("test campus");
+                temp_campus.setAuthor(USERNAME);
+                temp_campus = campusRepository.save(temp_campus);
 
-        // Mock loading key
-        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
+                testCampusID = temp_campus.getId().toString();
 
-        MockHttpServletRequestBuilder request = post(baseAddress + "new")
-        .header("IDENTITY", IDENTITY)
-        .header("KEY", key)
-        .param("name", "test campus");
+                MockHttpServletRequestBuilder request = delete(formatAddress("remove"))
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
+                                .param("id", "42069").secure(true);
 
-        mockMvc.perform(request)
-                .andExpect(status().isOk());
+                mockMvc.perform(request)
+                                .andExpect(status().isNotFound());
+        }
 
-    }
+        @Test
+        public void canDeleteIfCorrectID() throws Exception {
+                // Insert fake campus
+                Campus temp_campus = new Campus();
+                temp_campus.setName("test campus");
+                temp_campus.setAuthor(USERNAME);
+                temp_campus = campusRepository.save(temp_campus);
 
-    @Test
-    public void cannotDeleteIfWrongId() throws Exception {
-        // Mock loading key
-        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
+                testCampusID = temp_campus.getId().toString();
 
-        // Mock deleting key
-        Mockito.doReturn(true).when(storageService).removeKey(IDENTITY);
-        
-        // Insert fake campus
-        Campus campus = new Campus();
-        campus.setName("test campus");
-        campus.setAuthor(IDENTITY);
-        campusRepository.save(campus);
-        
-        // Get admin auth key
-        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
+                MockHttpServletRequestBuilder request = delete(formatAddress("remove"))
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
+                                .param("id", testCampusID).secure(true);
 
-        MockHttpServletRequestBuilder request = delete(baseAddress + "remove")
-        .header("IDENTITY", IDENTITY)
-        .header("KEY", key)
-        .param("id", "42069");
-
-        mockMvc.perform(request)
-                .andExpect(status().isNotFound());
-
-    }
-
-    @Test
-    public void canDeleteIfCorrectId() throws Exception {
-        // Mock loading key
-        Mockito.doReturn(mockAdminPrivateKey.getEncoded()).when(storageService).loadKey(IDENTITY);
-
-        // Mock deleting key
-        Mockito.doReturn(true).when(storageService).removeKey(IDENTITY);
-        
-        // Insert fake campus
-        Campus campus = new Campus();
-        campus.setName("test campus");
-        campus.setAuthor(IDENTITY);
-        campus = campusRepository.save(campus);
-        
-        // Get admin auth key
-        String key = AuthUtils.getKeyForIdentity(mockAdminPublicKey, IDENTITY, 0);
-
-        MockHttpServletRequestBuilder request = delete(baseAddress + "remove")
-        .header("IDENTITY", IDENTITY)
-        .header("KEY", key)
-        .param("id", Long.toString(campus.getId()));
-
-        mockMvc.perform(request)
-                .andExpect(status().isOk());
-
-    }
+                mockMvc.perform(request)
+                                .andExpect(status().isOk());
+        }
 
 }
