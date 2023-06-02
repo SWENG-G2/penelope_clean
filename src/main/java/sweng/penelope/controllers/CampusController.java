@@ -24,7 +24,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import springfox.documentation.annotations.ApiIgnore;
-import sweng.penelope.Responses;
 import sweng.penelope.entities.Campus;
 import sweng.penelope.repositories.CampusRepository;
 
