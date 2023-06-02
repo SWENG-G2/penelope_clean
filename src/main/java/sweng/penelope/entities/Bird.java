@@ -21,13 +21,15 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
+/**
+ * <code>Bird</code> JPA Entity
+ */
 @Entity
 @Getter
 @Setter
 @RequiredArgsConstructor
 @NoArgsConstructor
 public class Bird {
-    // Set them all t nonnnull and update campuslistxml. Update birdxml. Update odysseus. commit.
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
