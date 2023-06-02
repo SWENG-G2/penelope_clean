@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class CampusesListXMLTest {
     private static final String TEST_CAMPUS_NAME = "Arizzona";
     private static final Long TEST_CAMPUS_ID = 420L;
-    private static final String TEST_LINE_THICKNESS = "5";
+    private static final String TEST_LINE_THICKNESS = "2";
     private static final String PRESENTATION_TITLE = "The test presentation.";
     private static final String PRESENTATION_AUTHOR = "Batman";
     private static final Long ITEM_ID = 69L;

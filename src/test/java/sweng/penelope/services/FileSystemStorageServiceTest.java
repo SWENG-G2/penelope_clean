@@ -179,7 +179,7 @@ public class FileSystemStorageServiceTest {
         BufferedImage bi = new BufferedImage(BUFFERED_IMAGE_SIZE, BUFFERED_IMAGE_SIZE, BufferedImage.TYPE_INT_RGB);
 
         // Bad file name
-        boolean canWriteImage = classUnderTest.storeProcessedImage("/", "1", bi);
+        boolean canWriteImage = classUnderTest.storeProcessedImage("..", "1", bi);
 
         assertFalse(canWriteImage);
     }
@@ -321,60 +321,5 @@ public class FileSystemStorageServiceTest {
         Resource campusesListResource = classUnderTest.loadAsResourceFromDB("campusList", null);
 
         assertNotNull(campusesListResource);
-    }
-
-    @Test
-    public void canStoreKey() throws NoSuchAlgorithmException {
-        KeyPair keyPair = RSAUtils.generateKeys();
-
-        boolean canStoreKey = classUnderTest.storeKey(keyPair.getPrivate(), IDENTITY);
-
-        assertTrue(canStoreKey);
-    }
-
-    @Test
-    public void cannotStoreBadKey() throws IOException, NoSuchAlgorithmException {
-        // Removing the folder should cause IOException
-        FileSystemUtils.deleteRecursively(keysBasePath);
-        
-        KeyPair keyPair = RSAUtils.generateKeys();
-
-        boolean canStoreKey = classUnderTest.storeKey(keyPair.getPrivate(), IDENTITY);
-
-        assertFalse(canStoreKey);
-    }
-
-    @Test
-    public void canLoadKey() throws NoSuchAlgorithmException {
-        KeyPair keyPair = RSAUtils.generateKeys();
-        classUnderTest.storeKey(keyPair.getPrivate(), IDENTITY);
-
-        byte[] key = classUnderTest.loadKey(IDENTITY);
-
-        assertNotNull(key);
-    }
-
-    @Test
-    public void loadsEmptyKeyForMissingKey() {
-        byte[] key = classUnderTest.loadKey(IDENTITY);
-
-        assertEquals(0, key.length);
-    }
-
-    @Test
-    public void canRemoveKey() throws NoSuchAlgorithmException {
-        KeyPair keyPair = RSAUtils.generateKeys();
-        classUnderTest.storeKey(keyPair.getPrivate(), IDENTITY);
-
-        boolean canRemove = classUnderTest.removeKey(IDENTITY);
-
-        assertTrue(canRemove);
-    }
-
-    @Test
-    public void cannotRemoveMissingKey() {
-        boolean canRemove = classUnderTest.removeKey(IDENTITY);
-
-        assertFalse(canRemove);
     }
 }

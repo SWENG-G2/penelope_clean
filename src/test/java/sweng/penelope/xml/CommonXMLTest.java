@@ -16,12 +16,11 @@ public class CommonXMLTest {
     private static final Long ITEM_ID = 69L;
 
     private XMLConfiguration xmlConfiguration = new XMLConfiguration(PRESENTATION_AUTHOR, PRESENTATION_TITLE, ITEM_ID);
-    private CommonXML commonXML = new CommonXML(xmlConfiguration);
+    private CommonXML classUnderTest = new CommonXML(xmlConfiguration);
 
     @Test
     public void canCreateDocument() {
-        commonXML.createDocument();
-        Document document = commonXML.document;
+        Document document = classUnderTest.getDocument();
 
         assertNotEquals(null, document);
         assertEquals("presentation", document.getRootElement().getName());
@@ -40,15 +39,13 @@ public class CommonXMLTest {
         assertNotEquals(null, info.elementText("date"));
 
         assertEquals("numSlides", info.element("numSlides").getName());
-        assertEquals(commonXML.numSlidesString(), info.elementText("numSlides"));
+        assertEquals(classUnderTest.numSlidesString(), info.elementText("numSlides"));
 
     }
 
     @Test
     public void canGetBytes() throws Exception {
-        commonXML.createDocument();
-
-        byte[] test_byte = commonXML.getBytes();
+        byte[] test_byte = classUnderTest.getBytes();
 
         String xmlStr = new String(test_byte, StandardCharsets.UTF_8);
         Document document = DocumentHelper.parseText(xmlStr);
@@ -60,15 +57,13 @@ public class CommonXMLTest {
 
     @Test
     public void canIncrementNumOfSlides() {
-        commonXML.createDocument();
+        assertEquals("0", classUnderTest.numSlidesString());
 
-        assertEquals("0", commonXML.numSlidesString());
+        classUnderTest.incrementNumSlides();
+        assertEquals("1", classUnderTest.numSlidesString());
 
-        commonXML.incrementNumSlides();
-        assertEquals("1", commonXML.numSlidesString());
-
-        commonXML.incrementNumSlides();
-        assertEquals("2", commonXML.numSlidesString());
+        classUnderTest.incrementNumSlides();
+        assertEquals("2", classUnderTest.numSlidesString());
 
     }
 
