@@ -1,38 +1,38 @@
 package sweng.penelope.controllers;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.hamcrest.Matchers.containsString;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.nio.file.Files;
 import java.security.KeyPair;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Locale;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.apache.commons.io.IOUtils;
 
 import sweng.penelope.auth.RSAUtils;
 import sweng.penelope.entities.Campus;
@@ -45,160 +45,180 @@ import sweng.penelope.services.StorageService;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class FileUploadControllerTest {
-    
-    private static final String baseAddress = "/api/file/%s/";
-    private static final String USERNAME = "admin";
-    private static final String PASSWORD = "qwerty123456";
-    private static final String TIMESTAMP = ZonedDateTime.now(ZoneId.of("Europe/London")).toString();
 
-    private String testCampusID;
+        private static final String baseAddress = "/api/file/%s/";
+        private static final String USERNAME = "admin";
+        private static final String PASSWORD = "qwerty123456";
+        private static final String TIMESTAMP = ZonedDateTime.now(ZoneId.of("Europe/London")).toString();
 
-    private String ENCODED_PASSWORD, CREDENTIALS, ENCRYPTED_CREDENTIALS;
-    private DataManager dataManager;
+        private final DefaultResourceLoader defaultResourceLoader = new DefaultResourceLoader();
 
-    @Autowired
-    private MockMvc mockMvc;
+        private String testCampusID;
 
-    @Autowired
-    private DataManagerRepository dataManagerRepository;
+        private String ENCODED_PASSWORD, CREDENTIALS, ENCRYPTED_CREDENTIALS;
+        private DataManager dataManager;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Autowired
-    private KeyPair keyPair;
+        @Autowired
+        private DataManagerRepository dataManagerRepository;
 
-    @Autowired
-    private CampusRepository campusRepository;
+        @Autowired
+        private PasswordEncoder passwordEncoder;
 
-    @MockBean
-    private StorageService storageService;
+        @Autowired
+        private KeyPair keyPair;
 
-    @Value("${penelope.api-credentialsHeader}")
-    private String credentialsHeader;
+        @Autowired
+        private CampusRepository campusRepository;
 
-    private static String formatAddress(String endPoint, String campusId) {
-        return String.format(Locale.getDefault(), baseAddress, campusId) + endPoint;
-    }
+        @MockBean
+        private StorageService storageService;
 
-    @BeforeEach
-    public void setUpAdminCredentials() throws Exception {
-        this.CREDENTIALS = USERNAME + "=" + PASSWORD + "=" + TIMESTAMP;
-        this.ENCRYPTED_CREDENTIALS = RSAUtils.encrypt(keyPair.getPublic(), CREDENTIALS);
-        this.ENCODED_PASSWORD = passwordEncoder.encode(PASSWORD);
+        @Value("${penelope.api-credentialsHeader}")
+        private String credentialsHeader;
 
-        this.dataManager = new DataManager();
-        this.dataManager.setUsername(USERNAME);
-        this.dataManager.setPassword(ENCODED_PASSWORD);
-        this.dataManager.setSysadmin(true);
-        dataManagerRepository.save(dataManager);
+        private static String formatAddress(String endPoint, String campusId) {
+                return String.format(Locale.getDefault(), baseAddress, campusId) + endPoint;
+        }
 
-        Campus campus = new Campus();
-        campus.setName("test campus");
-        campus.setAuthor(USERNAME);
-        campus = campusRepository.save(campus);
+        @BeforeEach
+        public void setUpAdminCredentials() throws Exception {
+                this.CREDENTIALS = USERNAME + "=" + PASSWORD + "=" + TIMESTAMP;
+                this.ENCRYPTED_CREDENTIALS = RSAUtils.encrypt(keyPair.getPublic(), CREDENTIALS);
+                this.ENCODED_PASSWORD = passwordEncoder.encode(PASSWORD);
 
-        testCampusID = campus.getId().toString();
+                this.dataManager = new DataManager();
+                this.dataManager.setUsername(USERNAME);
+                this.dataManager.setPassword(ENCODED_PASSWORD);
+                this.dataManager.setSysadmin(true);
+                dataManagerRepository.save(dataManager);
 
-        when(storageService.store(anyString(), anyString(), any())).thenReturn(true);
-    }
+                Campus campus = new Campus();
+                campus.setName("test campus");
+                campus.setAuthor(USERNAME);
+                campus = campusRepository.save(campus);
 
-    @AfterEach
-    public void cleanUp() {
-        // Clean all
-        dataManagerRepository.deleteAll();
-        campusRepository.deleteAll();
-    }
+                testCampusID = campus.getId().toString();
 
-    @Test
-    public void incorrectFileTypeUpload() throws Exception {
-        String type = "incorrect type";
-        String fileName = "test.png";
-        boolean process = false;
+                when(storageService.store(anyString(), anyString(), any())).thenReturn(true);
+        }
 
-        MockMultipartFile file = new MockMultipartFile("file", fileName, "image/png", "test image content".getBytes());
+        @AfterEach
+        public void cleanUp() {
+                // Clean all
+                dataManagerRepository.deleteAll();
+                campusRepository.deleteAll();
+        }
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.multipart(formatAddress("new", testCampusID))
-                .file(file)
-                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .param("type", type)
-                .param("process", String.valueOf(process));
+        @Test
+        public void incorrectFileTypeUpload() throws Exception {
+                String type = "incorrect type";
+                String fileName = "test.png";
+                boolean process = false;
 
-        when(storageService.store(type, testCampusID, file)).thenReturn(false);
+                MockMultipartFile file = new MockMultipartFile("file", fileName, "image/png",
+                                "test image content".getBytes());
 
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
-    }
+                MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                                .multipart(formatAddress("new", testCampusID))
+                                .file(file)
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
+                                .param("type", type)
+                                .param("process", String.valueOf(process))
+                                .secure(true);
 
-    @Test
-    public void tooManyFileNameDots() throws Exception {
-        String type = "image";
-        String fileName = "test..png";
-        boolean process = false;
+                when(storageService.store(type, testCampusID, file)).thenReturn(false);
 
-        MockMultipartFile file = new MockMultipartFile("file", fileName, "image/png", "test image content".getBytes());
+                mockMvc.perform(request)
+                                .andExpect(status().isBadRequest());
+        }
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.multipart(formatAddress("new", testCampusID))
-                .file(file)
-                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .param("type", type)
-                .param("process", String.valueOf(process));
+        @Test
+        public void tooManyFileNameDots() throws Exception {
+                String type = "image";
+                String fileName = "test..png";
+                boolean process = false;
 
-        when(storageService.store(type, testCampusID, file)).thenReturn(false);
+                MockMultipartFile file = new MockMultipartFile("file", fileName, "image/png",
+                                "test image content".getBytes());
 
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
-    }
+                MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                                .multipart(formatAddress("new", testCampusID))
+                                .file(file)
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
+                                .param("type", type)
+                                .param("process", String.valueOf(process))
+                                .secure(true);
 
-    @Test
-    public void noImageProcessFileUpload() throws Exception {
-        String type = "image";
-        String fileName = "test.png";
-        boolean process = false;
+                when(storageService.store(type, testCampusID, file)).thenReturn(false);
 
-        MockMultipartFile file = new MockMultipartFile("file", fileName, "image/png", "test image content".getBytes());
+                mockMvc.perform(request)
+                                .andExpect(status().isBadRequest());
+        }
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.multipart(formatAddress("new", testCampusID))
-                .file(file)
-                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .param("type", type)
-                .param("process", String.valueOf(process));
-        
-        when(storageService.store(type, testCampusID, file)).thenReturn(true);
+        @Test
+        public void noImageProcessFileUpload() throws Exception {
+                String type = "image";
+                String fileName = "test.png";
+                boolean process = false;
 
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString(String.format("%s/%s/%s", type, testCampusID, fileName))));
+                MockMultipartFile file = new MockMultipartFile("file", fileName, "image/png",
+                                "test image content".getBytes());
 
-        verify(storageService, times(1)).store(type, testCampusID, file);
-    }
+                MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                                .multipart(formatAddress("new", testCampusID))
+                                .file(file)
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
+                                .param("type", type)
+                                .param("process", String.valueOf(process))
+                                .secure(true);
 
-    @Test
-    public void imageProcessFileUpload() throws Exception {
-        String type = "image";
-        String fileName = "duckTest.png";
-        boolean process = true;
+                when(storageService.store(type, testCampusID, file)).thenReturn(true);
 
-        File testImageFile = new File(getClass().getResource("/duckTest.png").getFile());
-        FileInputStream input = new FileInputStream(testImageFile);
-        MockMultipartFile file = new MockMultipartFile("file", fileName, "image/png", IOUtils.toByteArray(input));
+                mockMvc.perform(request)
+                                .andExpect(status().isOk())
+                                .andExpect(content().string(containsString(
+                                                String.format("%s/%s/%s", type, testCampusID, fileName))));
 
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.multipart(formatAddress("new", testCampusID))
-                .file(file)
-                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .param("type", type)
-                .param("process", String.valueOf(process));
-        
-        when(storageService.store(type, testCampusID, file)).thenReturn(true);
+                verify(storageService, times(1)).store(type, testCampusID, file);
+        }
 
-        String processedFileName = fileName.split("\\.")[0] + "_processed.png";
-        when(storageService.storeProcessedImage(eq(processedFileName), eq(testCampusID), any(BufferedImage.class))).thenReturn(true);
+        @Test
+        public void imageProcessFileUpload() throws Exception {
+                String type = "image";
+                String fileName = "classpath:duckTest.png";
+                boolean process = true;
 
-        mockMvc.perform(request)
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString(String.format("%s/%s/%s", type, testCampusID, processedFileName))));
+                File testFile = defaultResourceLoader.getResource(fileName).getFile();
+                byte[] fileBA = Files.readAllBytes(testFile.toPath());
 
-        verify(storageService, times(1)).storeProcessedImage(eq(processedFileName), eq(testCampusID), any(BufferedImage.class));
-    }
+                MockMultipartFile file = new MockMultipartFile("file", fileName, "image/png", fileBA);
+
+                MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                                .multipart(formatAddress("new", testCampusID))
+                                .file(file)
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
+                                .param("type", type)
+                                .param("process", String.valueOf(process))
+                                .secure(true);
+
+                when(storageService.store(type, testCampusID, file)).thenReturn(true);
+
+                String processedFileName = fileName.split("\\.")[0] + "_processed.png";
+                when(storageService.storeProcessedImage(eq(processedFileName), eq(testCampusID),
+                                any(BufferedImage.class)))
+                                .thenReturn(true);
+
+                mockMvc.perform(request)
+                                .andExpect(status().isOk())
+                                .andExpect(content()
+                                                .string(containsString(String.format("%s/%s/%s", type, testCampusID,
+                                                                processedFileName))));
+
+                verify(storageService, times(1)).storeProcessedImage(eq(processedFileName), eq(testCampusID),
+                                any(BufferedImage.class));
+        }
 
 }

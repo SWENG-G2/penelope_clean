@@ -33,6 +33,14 @@ test {
 	finalizedBy jacocoTestReport
 }
 
+sourceSets {
+	test {
+		resources {
+			srcDir "test"
+		}
+	}
+}
+
 jacoco {
 	reportsDirectory = layout.buildDirectory.dir("jacocoReport")
 }

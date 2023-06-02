@@ -102,7 +102,8 @@ public class DataManagerControllerTest {
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
                 .param("username", "Heisenberg")
                 .param("password", "Password123")
-                .param("sysadmin", "false"))
+                .param("sysadmin", "false")
+                .secure(true))
                 .andExpect(status().isOk());
 
         assertNotNull(dataManager);
@@ -124,7 +125,8 @@ public class DataManagerControllerTest {
 
         mockMvc.perform(delete(baseAddress + "remove")
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .param("username", testUser.getUsername()))
+                .param("username", testUser.getUsername())
+                .secure(true))
                 .andExpect(status().isOk());
 
         assertTrue(dataManagerRepository.findById(testUser.getUsername()).isEmpty());
@@ -140,7 +142,7 @@ public class DataManagerControllerTest {
         testUser.setPassword(testPassword);
         testUser.setSysadmin(false);
         testUser = dataManagerRepository.save(testUser);
-        
+
         // Insert a campus
         Campus campus = new Campus();
         campus = campusRepository.save(campus);
@@ -148,7 +150,8 @@ public class DataManagerControllerTest {
         mockMvc.perform(patch(baseAddress + "addCampus")
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
                 .param("username", testUser.getUsername())
-                .param("campusID", campus.getId().toString()))
+                .param("campusID", campus.getId().toString())
+                .secure(true))
                 .andExpect(status().isOk());
 
     }
@@ -179,7 +182,8 @@ public class DataManagerControllerTest {
         mockMvc.perform(patch(baseAddress + "removeCampus")
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
                 .param("username", testUsername)
-                .param("campusID", campus.getId().toString()))
+                .param("campusID", campus.getId().toString())
+                .secure(true))
                 .andExpect(status().isOk());
 
         DataManager updatedUser = dataManagerRepository.findById(testUsername).orElseThrow();
@@ -213,7 +217,8 @@ public class DataManagerControllerTest {
         String testEncryptedCredentials = RSAUtils.encrypt(keyPair.getPublic(), testCredentials);
 
         MvcResult result = mockMvc.perform(post(baseAddress + "validate")
-                .header(credentialsHeader.toLowerCase(), testEncryptedCredentials))
+                .header(credentialsHeader.toLowerCase(), testEncryptedCredentials)
+                .secure(true))
                 .andExpect(status().isNoContent())
                 .andReturn();
 
@@ -224,15 +229,15 @@ public class DataManagerControllerTest {
 
     @Test
     public void canServeUsersXML() throws Exception {
-    Resource mockResource = new InputStreamResource(new ByteArrayInputStream("<xml></xml>".getBytes()));
+        Resource mockResource = new InputStreamResource(new ByteArrayInputStream("<xml></xml>".getBytes()));
 
-    when(storageService.loadAsResourceFromDB(eq("usersList"), eq(null))).thenReturn(mockResource);
+        when(storageService.loadAsResourceFromDB(eq("usersList"), eq(null))).thenReturn(mockResource);
 
-    mockMvc.perform(get(baseAddress + "list")
-            .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS))
-            .andExpect(content().contentType(MediaType.APPLICATION_XML))
-            .andExpect(header().string("Content-Disposition", "inline"))
-            .andExpect(status().isOk())
-            .andReturn();
+        mockMvc.perform(get(baseAddress + "list")
+                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS).secure(true))
+                .andExpect(content().contentType(MediaType.APPLICATION_XML))
+                .andExpect(header().string("Content-Disposition", "inline"))
+                .andExpect(status().isOk())
+                .andReturn();
     }
 }

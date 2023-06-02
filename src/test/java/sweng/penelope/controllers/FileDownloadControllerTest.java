@@ -15,16 +15,19 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import sweng.penelope.services.StorageService;
 
 @ExtendWith(MockitoExtension.class)
 public class FileDownloadControllerTest {
-    
+
+    private final DefaultResourceLoader defaultResourceLoader = new DefaultResourceLoader();
+
     @InjectMocks
     private FileDownloadController fileDownloadController;
 
@@ -32,7 +35,7 @@ public class FileDownloadControllerTest {
     private StorageService storageServiceMock;
 
     @Test
-    public void serveBirdXMLTest () {
+    public void serveBirdXMLTest() {
         Long birdId = 1L;
         Resource resourceMock = Mockito.mock(Resource.class);
 
@@ -79,10 +82,10 @@ public class FileDownloadControllerTest {
     public void serveAssetSuccessTest() throws URISyntaxException, IOException {
         String type = "image";
         String campusId = "1";
-        String fileName = "duckTest.png";
+        String fileName = "classpath:duckTest.png";
         Resource resourceMock = Mockito.mock(Resource.class);
-        URI uri = getClass().getClassLoader().getResource(fileName).toURI();
-        
+        URI uri = defaultResourceLoader.getResource(fileName).getFile().toURI();
+
         when(storageServiceMock.loadAsResource(type, campusId, fileName)).thenReturn(resourceMock);
         when(resourceMock.getURI()).thenReturn(uri);
 
@@ -98,10 +101,10 @@ public class FileDownloadControllerTest {
     public void serveAssetFailTest() throws URISyntaxException, IOException {
         String type = "image";
         String campusId = "1";
-        String fileName = "duckTest.png";
+        String fileName = "classpath:duckTest.png";
         Resource resourceMock = Mockito.mock(Resource.class);
-        URI uri = getClass().getClassLoader().getResource(fileName).toURI();
-        
+        URI uri = defaultResourceLoader.getResource(fileName).getFile().toURI();
+
         when(storageServiceMock.loadAsResource(type, campusId, fileName)).thenReturn(resourceMock);
         when(resourceMock.getURI()).thenReturn(uri);
 
@@ -110,7 +113,7 @@ public class FileDownloadControllerTest {
         verify(storageServiceMock).loadAsResource(type, campusId, fileName);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(resourceMock, response.getBody());
-        
+
         // Wrong content type on purpose, should be image/png
         assertThrows(AssertionError.class, () -> {
             assertEquals(MediaType.valueOf("video/mp4"), response.getHeaders().getContentType());

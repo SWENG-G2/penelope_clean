@@ -125,7 +125,8 @@ public class BirdControllerTest {
 
         MockHttpServletRequestBuilder request = post(formatAddress("new", "42069"))
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .params(parameters);
+                .params(parameters)
+                .secure(true);
 
         mockMvc.perform(request)
                 .andExpect(status().isNotFound());
@@ -160,7 +161,7 @@ public class BirdControllerTest {
 
         MockHttpServletRequestBuilder request = post(formatAddress("new", testCampusID))
                 .header(credentialsHeader.toLowerCase(), testEncryptedCredentials)
-                .params(parameters);
+                .params(parameters).secure(true);
         
         mockMvc.perform(request)
                 .andExpect(status().isForbidden());
@@ -185,7 +186,7 @@ public class BirdControllerTest {
 
         MockHttpServletRequestBuilder request = post(formatAddress("new", testCampusID))
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .params(parameters);
+                .params(parameters).secure(true);
 
         mockMvc.perform(request)
                 .andExpect(status().is4xxClientError());
@@ -208,7 +209,7 @@ public class BirdControllerTest {
 
         MockHttpServletRequestBuilder request = post(formatAddress("new", testCampusID))
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .params(parameters);
+                .params(parameters).secure(true);
 
         mockMvc.perform(request)
                 .andExpect(status().is4xxClientError());
@@ -231,7 +232,7 @@ public class BirdControllerTest {
 
         MockHttpServletRequestBuilder request = post(formatAddress("new", testCampusID))
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .params(parameters);
+                .params(parameters).secure(true);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
@@ -259,7 +260,7 @@ public class BirdControllerTest {
 
         MockHttpServletRequestBuilder request = delete(formatAddress("remove", testCampusID))
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .params(parameters);
+                .params(parameters).secure(true);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());
@@ -289,7 +290,7 @@ public class BirdControllerTest {
 
         MockHttpServletRequestBuilder request = patch(formatAddress("edit", testCampusID))
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
-                .params(parameters);
+                .params(parameters).secure(true);
 
         mockMvc.perform(request)
                 .andExpect(status().isOk());

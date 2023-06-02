@@ -16,7 +16,6 @@ import sweng.penelope.services.StorageService;
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @SpringBootTest
@@ -39,7 +38,7 @@ public class KeyPairControllerTest {
     @Test
     @WithMockUser
     public void canGetMethodName() throws Exception {
-        mockMvc.perform(get("/key"))
+        mockMvc.perform(get("/key").secure(true))
                 .andExpect(status().isOk())
                 .andExpect(header().exists(keyHeader))
                 // Expect Base64
