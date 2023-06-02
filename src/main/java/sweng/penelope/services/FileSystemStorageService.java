@@ -10,6 +10,8 @@ import java.nio.file.Paths;
 import java.security.PrivateKey;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
 
@@ -28,10 +30,12 @@ import sweng.penelope.entities.Bird;
 import sweng.penelope.entities.Campus;
 import sweng.penelope.repositories.BirdRepository;
 import sweng.penelope.repositories.CampusRepository;
+import sweng.penelope.repositories.DataManagerRepository;
 import sweng.penelope.xml.BirdXML;
 import sweng.penelope.xml.CampusXML;
 import sweng.penelope.xml.CampusesListXML;
 import sweng.penelope.xml.CommonXML;
+import sweng.penelope.xml.UsersListXML;
 import sweng.penelope.xml.XMLConfiguration;
 
 /**
@@ -52,6 +56,8 @@ public class FileSystemStorageService implements StorageService {
     private BirdRepository birdRepository;
     @Autowired
     private CampusRepository campusRepository;
+    @Autowired
+    private DataManagerRepository dataManagerRepository;
 
     private void createDir(Path path) throws IOException {
         if (!Files.exists(path))
@@ -92,7 +98,7 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public boolean storeProcessedImage(String fileName, String campusId, BufferedImage image) {
         Path destinationRoot = Paths.get(baseString, "image", campusId);
-        File outFile = destinationRoot.resolve(fileName).toFile();
+        File outFile = Paths.get(baseString, "image", campusId, fileName).toFile();
         try {
             createDir(destinationRoot);
             ImageIO.write(image, "png", outFile);
@@ -155,6 +161,7 @@ public class FileSystemStorageService implements StorageService {
             Campus campus = requestCampus.get();
             XMLConfiguration xmlConfiguration = new XMLConfiguration(campus.getAuthor(), campus.getName(), id);
             campusXML = new CampusXML(xmlConfiguration);
+
             Iterator<Bird> birdsIterator = campus.getBirds().iterator();
             while (birdsIterator.hasNext()) {
                 Bird bird = birdsIterator.next();
@@ -179,6 +186,24 @@ public class FileSystemStorageService implements StorageService {
         return campusesListXML;
     }
 
+    private UsersListXML getUsersList() {
+        XMLConfiguration xmlConfiguration = new XMLConfiguration("The Penelope Team", "Users list", -1L);
+        UsersListXML usersListXML = new UsersListXML(xmlConfiguration);
+
+        dataManagerRepository.findAll().forEach(dataManager -> {
+            Set<Campus> campuses;
+
+            if (dataManager.isSysadmin())
+                campuses = null;
+            else
+                campuses = dataManager.getCampuses();
+
+            usersListXML.addUser(dataManager.getUsername(), campuses);
+        });
+
+        return usersListXML;
+    }
+
     @Override
     public Resource loadAsResourceFromDB(String type, Long id) {
         CommonXML xml = null;
@@ -186,6 +211,8 @@ public class FileSystemStorageService implements StorageService {
             xml = getCampus(id);
         else if (type.equals("bird"))
             xml = getBird(id);
+        else if (type.equals("usersList"))
+            xml = getUsersList();
         else
             xml = getCampusesList();
 
@@ -196,41 +223,5 @@ public class FileSystemStorageService implements StorageService {
             }
         }
         return null;
-    }
-
-    @Override
-    public boolean storeKey(PrivateKey privateKey, String identity) {
-        Path destinationPath = Paths.get(keysBaseString, identity);
-        try {
-            Files.write(destinationPath, privateKey.getEncoded());
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @Override
-    public byte[] loadKey(String identity) {
-        Path sourcePath = Paths.get(keysBaseString, identity);
-        try {
-            return Files.readAllBytes(sourcePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new byte[0];
-        }
-    }
-
-    @Override
-    public boolean removeKey(String identity) {
-        Path sourcePath = Paths.get(keysBaseString, identity);
-
-        try {
-            Files.delete(sourcePath);
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 }

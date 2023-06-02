@@ -39,31 +39,6 @@ public interface StorageService {
 	boolean storeProcessedImage(String fileName, String campusId, BufferedImage image);
 
 	/**
-	 * Stores a {@link PrivateKey}
-	 * 
-	 * @param privateKey The private key to be stored.
-	 * @param identity   The identity associated with said key.
-	 * @return True for success, false for failure.
-	 */
-	boolean storeKey(PrivateKey privateKey, String identity);
-
-	/**
-	 * Removes a stored {@link PrivateKey} from storage.
-	 * 
-	 * @param identity The identity associated with the key.
-	 * @return True for success, false for failure.
-	 */
-	boolean removeKey(String identity);
-
-	/**
-	 * Loads a {@link PrivateKey} from storage.
-	 * 
-	 * @param identity The identity associated with the key.
-	 * @return A byte array containing the key.
-	 */
-	byte[] loadKey(String identity);
-
-	/**
 	 * Resolves the path to the required asset.
 	 * 
 	 * @param type     The file type (image, video, audio).
