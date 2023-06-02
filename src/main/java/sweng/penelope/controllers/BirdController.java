@@ -160,26 +160,18 @@ public class BirdController {
             String author = ControllerUtils.getAuthorName(authentication);
             Long previousCampus = bird.getCampus().getId();
 
-            // This is 7yo writing python code quality. Look into
-            // https://www.baeldung.com/spring-data-partial-update#1-mapping-strategy
-            if (name.isPresent())
-                bird.setName(name.get());
-            if (heroImageURL.isPresent())
-                bird.setHeroImageURL(heroImageURL.get());
-            if (soundURL.isPresent())
-                bird.setSoundURL(soundURL.get());
-            if (aboutMe.isPresent())
-                bird.setAboutMe(aboutMe.get());
-            if (aboutMeVideoURL.isPresent())
-                bird.setAboutMeVideoURL(aboutMeVideoURL.get());
-            if (location.isPresent())
-                bird.setLocation(location.get());
-            if (locationImageURL.isPresent())
-                bird.setLocationImageURL(locationImageURL.get());
-            if (diet.isPresent())
-                bird.setDiet(diet.get());
-            if (dietImageURL.isPresent())
-                bird.setDietImageURL(dietImageURL.get());
+            evictBirdAssetsCache(bird);
+
+            // Update fields
+            bird.setName(name.orElse(bird.getName()));
+            bird.setHeroImageURL(heroImageURL.orElse(bird.getHeroImageURL()));
+            bird.setSoundURL(soundURL.orElse(bird.getSoundURL()));
+            bird.setAboutMe(aboutMe.orElse(bird.getAboutMe()));
+            bird.setAboutMeVideoURL(aboutMeVideoURL.orElse(bird.getAboutMeVideoURL()));
+            bird.setLocation(location.orElse(bird.getLocation()));
+            bird.setLocationImageURL(locationImageURL.orElse(bird.getLocationImageURL()));
+            bird.setDiet(diet.orElse(bird.getDiet()));
+            bird.setDietImageURL(dietImageURL.orElse(bird.getDietImageURL()));
 
             String currentAuthors = bird.getAuthor();
             if (!currentAuthors.contains(author))
@@ -196,8 +188,6 @@ public class BirdController {
             CacheUtils.evictCache(cacheManager, CacheUtils.CAMPUSES, previousCampus);
 
             CacheUtils.evictCache(cacheManager, CacheUtils.BIRDS, bird.getId());
-
-            evictBirdAssetsCache(bird);
 
             return ResponseEntity.ok().body(String.format("Bird \"%s\" updated%n", bird.getName()));
         } else

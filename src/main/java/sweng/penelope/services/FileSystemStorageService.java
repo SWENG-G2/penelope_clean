@@ -82,9 +82,9 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public boolean store(String type, String campusId, MultipartFile file) {
+    public boolean store(String type, String campusId, MultipartFile file, String fileName) {
         Path destinationRoot = Paths.get(baseString, type, campusId);
-        Path destinationPath = destinationRoot.resolve(file.getOriginalFilename());
+        Path destinationPath = destinationRoot.resolve(fileName);
         try {
             createDir(destinationRoot);
             file.transferTo(destinationPath);

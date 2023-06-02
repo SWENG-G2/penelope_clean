@@ -17,9 +17,10 @@ public class CacheUtils {
 
     /**
      * Evicts a cached element.
+     * 
      * @param cacheManager A {@link CacheManager} instance
-     * @param cacheName The name of the cache record to evict
-     * @param key The caching key
+     * @param cacheName    The name of the cache record to evict
+     * @param key          The caching key
      */
     public static void evictCache(CacheManager cacheManager, String cacheName, Object key) {
         Cache cache = cacheManager.getCache(cacheName);

@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.security.KeyPair;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.Locale;
 
 import org.junit.jupiter.api.AfterEach;
@@ -46,6 +47,7 @@ public class BirdControllerTest {
         private static final String USERNAME = "admin";
         private static final String PASSWORD = "qwerty123456";
         private static final String TIMESTAMP = ZonedDateTime.now(ZoneId.of("Europe/London")).toString();
+        private static final String FILLER_STRING = "Some data";
 
         private static final String BAD_NAME = "123456789123456789123";
         private String testCampusID;
@@ -287,6 +289,15 @@ public class BirdControllerTest {
                 bird.setAuthor(USERNAME);
                 bird.setCampus(temp_campus);
                 bird.setName("Boris");
+                bird.setAboutMe(FILLER_STRING);
+                bird.setAboutMeVideoURL(FILLER_STRING);
+                bird.setDiet(FILLER_STRING);
+                bird.setDietImageURL(FILLER_STRING);
+                bird.setHeroImageURL(FILLER_STRING);
+                bird.setListImageURL(FILLER_STRING);
+                bird.setLocation(FILLER_STRING);
+                bird.setLocationImageURL(FILLER_STRING);
+                bird.setSoundURL(FILLER_STRING);
                 bird = birdRepository.save(bird);
 
                 // Bird parameters

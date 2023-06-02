@@ -102,7 +102,7 @@ public class FileUploadControllerTest {
 
                 testCampusID = campus.getId().toString();
 
-                when(storageService.store(anyString(), anyString(), any())).thenReturn(true);
+                when(storageService.store(anyString(), anyString(), any(), anyString())).thenReturn(true);
         }
 
         @AfterEach
@@ -129,7 +129,7 @@ public class FileUploadControllerTest {
                                 .param("process", String.valueOf(process))
                                 .secure(true);
 
-                when(storageService.store(type, testCampusID, file)).thenReturn(false);
+                when(storageService.store(eq(type), eq(testCampusID), eq(file), anyString())).thenReturn(false);
 
                 mockMvc.perform(request)
                                 .andExpect(status().isBadRequest());
@@ -152,7 +152,7 @@ public class FileUploadControllerTest {
                                 .param("process", String.valueOf(process))
                                 .secure(true);
 
-                when(storageService.store(type, testCampusID, file)).thenReturn(false);
+                when(storageService.store(eq(type), eq(testCampusID), eq(file), anyString())).thenReturn(false);
 
                 mockMvc.perform(request)
                                 .andExpect(status().isBadRequest());
@@ -175,14 +175,15 @@ public class FileUploadControllerTest {
                                 .param("process", String.valueOf(process))
                                 .secure(true);
 
-                when(storageService.store(type, testCampusID, file)).thenReturn(true);
+                when(storageService.store(eq(type), eq(testCampusID), eq(file), anyString())).thenReturn(true);
 
+                String fileNameNoExtension = fileName.split("\\.")[0];
                 mockMvc.perform(request)
                                 .andExpect(status().isOk())
                                 .andExpect(content().string(containsString(
-                                                String.format("%s/%s/%s", type, testCampusID, fileName))));
+                                                String.format("%s/%s/%s", type, testCampusID, fileNameNoExtension))));
 
-                verify(storageService, times(1)).store(type, testCampusID, file);
+                verify(storageService, times(1)).store(eq(type), eq(testCampusID), eq(file), anyString());
         }
 
         @Test
@@ -204,20 +205,21 @@ public class FileUploadControllerTest {
                                 .param("process", String.valueOf(process))
                                 .secure(true);
 
-                when(storageService.store(type, testCampusID, file)).thenReturn(true);
+                when(storageService.store(eq(type), eq(testCampusID), eq(file), anyString())).thenReturn(true);
 
-                String processedFileName = fileName.split("\\.")[0] + "_processed.png";
-                when(storageService.storeProcessedImage(eq(processedFileName), eq(testCampusID),
+                when(storageService.storeProcessedImage(anyString(), eq(testCampusID),
                                 any(BufferedImage.class)))
                                 .thenReturn(true);
 
+                String fileNameNoExtension = fileName.split("\\.")[0];
                 mockMvc.perform(request)
                                 .andExpect(status().isOk())
                                 .andExpect(content()
-                                                .string(containsString(String.format("%s/%s/%s", type, testCampusID,
-                                                                processedFileName))));
+                                                .string(containsString("_processed.png")))
+                                .andExpect(content().string(containsString(
+                                                String.format("%s/%s/%s", type, testCampusID, fileNameNoExtension))));
 
-                verify(storageService, times(1)).storeProcessedImage(eq(processedFileName), eq(testCampusID),
+                verify(storageService, times(1)).storeProcessedImage(anyString(), eq(testCampusID),
                                 any(BufferedImage.class));
         }
 

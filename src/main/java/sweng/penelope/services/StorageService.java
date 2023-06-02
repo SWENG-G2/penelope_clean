@@ -24,9 +24,10 @@ public interface StorageService {
 	 * @param type     The file type (image, video, audio).
 	 * @param campusId The ID of the campus the resource belongs to.
 	 * @param file     The file to save.
+	 * @param fileName The fileName.
 	 * @return True for success, false for failure.
 	 */
-	boolean store(String type, String campusId, MultipartFile file);
+	boolean store(String type, String campusId, MultipartFile file, String fileName);
 
 	/**
 	 * Stores an image as a round PNG.

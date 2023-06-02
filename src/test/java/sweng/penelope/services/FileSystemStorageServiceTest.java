@@ -142,13 +142,13 @@ public class FileSystemStorageServiceTest {
     public void canStoreFile() throws Exception {
         MockMultipartFile mpf = new MockMultipartFile("file", IMAGE_NAME, MediaType.IMAGE_PNG_VALUE,
                 "content".getBytes());
-        boolean canStoreImage = classUnderTest.store("image", "1", mpf);
+        boolean canStoreImage = classUnderTest.store("image", "1", mpf, "image.png");
 
         mpf = new MockMultipartFile("file", VIDEO_NAME, VIDEO_MIME_TYPE, "content".getBytes());
-        boolean canStoreVideo = classUnderTest.store("video", "1", mpf);
+        boolean canStoreVideo = classUnderTest.store("video", "1", mpf, "video.mp4");
 
         mpf = new MockMultipartFile("file", AUDIO_NAME, AUDIO_MIME_TYPE, "content".getBytes());
-        boolean canStoreAudio = classUnderTest.store("audio", "1", mpf);
+        boolean canStoreAudio = classUnderTest.store("audio", "1", mpf, "audio.mp3");
 
         assertTrue(canStoreImage);
         assertTrue(canStoreVideo);
@@ -160,7 +160,7 @@ public class FileSystemStorageServiceTest {
         // Original file name is empty
         MockMultipartFile mpf = new MockMultipartFile("file", "".getBytes());
 
-        boolean failsToStore = classUnderTest.store("image", "1", mpf);
+        boolean failsToStore = classUnderTest.store("image", "1", mpf, "");
 
         assertFalse(failsToStore);
     }
