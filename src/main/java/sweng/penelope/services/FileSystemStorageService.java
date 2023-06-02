@@ -144,14 +144,17 @@ public class FileSystemStorageService implements StorageService {
     /**
      * Generates a {@link BirdXML}.
      * 
-     * @param id The {@link Bird} id.
+     * @param id        The {@link Bird} id.
+     * @param serverUrl The server url, with protocol and port.
      * @return
      */
-    private BirdXML getBird(Long id) {
+    private BirdXML getBird(Long id, String serverUrl) {
         Optional<Bird> requestBird = birdRepository.findById(id);
 
         return requestBird.map(bird -> {
             XMLConfiguration xmlConfiguration = new XMLConfiguration(bird.getAuthor(), bird.getName(), id);
+            xmlConfiguration.setServerUrl(serverUrl);
+
             BirdXML birdXML = new BirdXML(xmlConfiguration);
 
             String aboutMe = HtmlUtils.htmlEscape(bird.getAboutMe());
@@ -219,12 +222,12 @@ public class FileSystemStorageService implements StorageService {
     }
 
     @Override
-    public Resource loadAsResourceFromDB(String type, Long id) {
+    public Resource loadAsResourceFromDB(String type, Long id, String serverUrl) {
         CommonXML xml = null;
         if (type.equals("campus"))
             xml = getCampus(id);
         else if (type.equals("bird"))
-            xml = getBird(id);
+            xml = getBird(id, serverUrl);
         else if (type.equals("usersList"))
             xml = getUsersList();
         else

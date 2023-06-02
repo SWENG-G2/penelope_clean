@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
@@ -13,10 +15,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import springfox.documentation.annotations.ApiIgnore;
 import sweng.penelope.services.StorageService;
 
 /**
@@ -88,8 +92,14 @@ public class FileDownloadController {
     @GetMapping(path = "/bird/{birdId}")
     @Cacheable(CacheUtils.BIRDS)
     @ApiOperation("Returns the xml containing information about the desired bird.")
-    public ResponseEntity<Resource> serveBirdXML(@ApiParam("The ID of the desired bird.") @PathVariable Long birdId) {
-        Resource resource = storageService.loadAsResourceFromDB("bird", birdId);
+    public ResponseEntity<Resource> serveBirdXML(@ApiParam("The ID of the desired bird.") @PathVariable Long birdId,
+            @ApiIgnore HttpServletRequest request) {
+        String serverUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
+
+        Resource resource = storageService.loadAsResourceFromDB("bird", birdId, serverUrl);
 
         return provideXMLResponse(resource);
     }
@@ -105,7 +115,7 @@ public class FileDownloadController {
     @ApiOperation("Returns the xml containing information about the desired campus.")
     public ResponseEntity<Resource> serveCampusXML(
             @ApiParam("The ID of the desired campus.") @PathVariable Long campusId) {
-        Resource resource = storageService.loadAsResourceFromDB("campus", campusId);
+        Resource resource = storageService.loadAsResourceFromDB("campus", campusId, null);
 
         return provideXMLResponse(resource);
     }
@@ -119,7 +129,7 @@ public class FileDownloadController {
     @Cacheable(CacheUtils.CAMPUSES_LIST)
     @ApiOperation("Returns the xml containing a list of available campuses.")
     public ResponseEntity<Resource> serveCampusesListXML() {
-        Resource resource = storageService.loadAsResourceFromDB("campusList", null);
+        Resource resource = storageService.loadAsResourceFromDB("campusList", null, null);
 
         return provideXMLResponse(resource);
     }

@@ -231,7 +231,7 @@ public class DataManagerControllerTest {
     public void canServeUsersXML() throws Exception {
         Resource mockResource = new InputStreamResource(new ByteArrayInputStream("<xml></xml>".getBytes()));
 
-        when(storageService.loadAsResourceFromDB(eq("usersList"), eq(null))).thenReturn(mockResource);
+        when(storageService.loadAsResourceFromDB(eq("usersList"), eq(null), eq(null))).thenReturn(mockResource);
 
         mockMvc.perform(get(baseAddress + "list")
                 .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS).secure(true))

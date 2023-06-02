@@ -12,6 +12,7 @@ public class XMLConfiguration {
     private String author;
     private String title;
     private Long itemId;
+    private String serverUrl = null;
 
     /**
      * <code>XMLConfiguration</code> constructor.

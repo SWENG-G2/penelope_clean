@@ -59,7 +59,7 @@ public class CommonXML {
     protected static final String MATCH_PARENT = "-4";
     protected static final String WRAP_CONTENT = "-5";
 
-    private XMLConfiguration xmlConfiguration;
+    protected XMLConfiguration xmlConfiguration;
 
     /**
      * <code>CommonXML constructor</code>

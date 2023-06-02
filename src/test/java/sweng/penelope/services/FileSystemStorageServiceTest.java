@@ -267,7 +267,7 @@ public class FileSystemStorageServiceTest {
         bird.setCampus(campus);
         bird = birdRepository.save(bird);
 
-        Resource birdResource = classUnderTest.loadAsResourceFromDB("bird", bird.getId());
+        Resource birdResource = classUnderTest.loadAsResourceFromDB("bird", bird.getId(), null);
 
         assertNotNull(birdResource);
     }
@@ -276,7 +276,7 @@ public class FileSystemStorageServiceTest {
     public void cannotLoadMissinBird() {
         assertThrows(ResponseStatusException.class, () -> {
             // Arbitrary ID
-            classUnderTest.loadAsResourceFromDB("bird", 200L);
+            classUnderTest.loadAsResourceFromDB("bird", 200L, null);
         });
     }
 
@@ -310,7 +310,7 @@ public class FileSystemStorageServiceTest {
         campus.setBirds(birds);
         campus = campusRepository.save(campus);
 
-        Resource campusResource = classUnderTest.loadAsResourceFromDB("campus", campus.getId());
+        Resource campusResource = classUnderTest.loadAsResourceFromDB("campus", campus.getId(), null);
 
         assertNotNull(campusResource);
     }
@@ -325,7 +325,7 @@ public class FileSystemStorageServiceTest {
         campus.setBirds(new HashSet<Bird>());
         campus = campusRepository.save(campus);
 
-        Resource campusResource = classUnderTest.loadAsResourceFromDB("campus", campus.getId());
+        Resource campusResource = classUnderTest.loadAsResourceFromDB("campus", campus.getId(), null);
 
         assertNotNull(campusResource);
     }
@@ -333,7 +333,7 @@ public class FileSystemStorageServiceTest {
     @Test
     public void cannotLoadMissinCampus() {
         // Arbitrary ID
-        assertNull(classUnderTest.loadAsResourceFromDB("campus", 200L));
+        assertNull(classUnderTest.loadAsResourceFromDB("campus", 200L, null));
     }
 
     @Test
@@ -345,7 +345,7 @@ public class FileSystemStorageServiceTest {
         campus.setBirds(new HashSet<Bird>());
         campus = campusRepository.save(campus);
 
-        Resource campusesListResource = classUnderTest.loadAsResourceFromDB("campusList", null);
+        Resource campusesListResource = classUnderTest.loadAsResourceFromDB("campusList", null, null);
 
         assertNotNull(campusesListResource);
     }

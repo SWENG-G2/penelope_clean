@@ -261,7 +261,7 @@ public class DataManagerController {
     @ApiOperation("Provides a list of all users and their campuses permissions")
     @GetMapping("/list")
     public ResponseEntity<Resource> serveUsersXML() {
-        Resource resource = storageService.loadAsResourceFromDB("usersList", null);
+        Resource resource = storageService.loadAsResourceFromDB("usersList", null, null);
 
         if (resource != null) {
             return ResponseEntity.ok()

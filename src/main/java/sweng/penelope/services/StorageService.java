@@ -65,9 +65,10 @@ public interface StorageService {
 	/**
 	 * Retrieves the desired resource from database as a {@link Resource}.
 	 * 
-	 * @param type The resource type (bird, campus, campusList).
-	 * @param id   The resource ID.
+	 * @param type      The resource type (bird, campus, campusList).
+	 * @param id        The resource ID.
+	 * @param serverUrl The server url with protocol and port.
 	 * @return {@link Resource} representation of the resource.
 	 */
-	Resource loadAsResourceFromDB(String type, Long id);
+	Resource loadAsResourceFromDB(String type, Long id, String serverUrl);
 }

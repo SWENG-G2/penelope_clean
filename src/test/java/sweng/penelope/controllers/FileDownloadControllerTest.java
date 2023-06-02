@@ -2,6 +2,8 @@ package sweng.penelope.controllers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -20,6 +22,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 
 import sweng.penelope.services.StorageService;
 
@@ -39,11 +42,14 @@ public class FileDownloadControllerTest {
         Long birdId = 1L;
         Resource resourceMock = Mockito.mock(Resource.class);
 
-        when(storageServiceMock.loadAsResourceFromDB("bird", birdId)).thenReturn(resourceMock);
+        when(storageServiceMock.loadAsResourceFromDB(eq("bird"), eq(birdId), anyString())).thenReturn(resourceMock);
 
-        ResponseEntity<Resource> response = fileDownloadController.serveBirdXML(birdId);
+        MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
+        mockHttpServletRequest.setMethod("GET");
 
-        verify(storageServiceMock).loadAsResourceFromDB("bird", birdId);
+        ResponseEntity<Resource> response = fileDownloadController.serveBirdXML(birdId, mockHttpServletRequest);
+
+        verify(storageServiceMock).loadAsResourceFromDB(eq("bird"), eq(birdId), anyString());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(resourceMock, response.getBody());
@@ -54,11 +60,11 @@ public class FileDownloadControllerTest {
         Long campusId = 1L;
         Resource resourceMock = Mockito.mock(Resource.class);
 
-        when(storageServiceMock.loadAsResourceFromDB("campus", campusId)).thenReturn(resourceMock);
+        when(storageServiceMock.loadAsResourceFromDB("campus", campusId, null)).thenReturn(resourceMock);
 
         ResponseEntity<Resource> response = fileDownloadController.serveCampusXML(campusId);
 
-        verify(storageServiceMock).loadAsResourceFromDB("campus", campusId);
+        verify(storageServiceMock).loadAsResourceFromDB("campus", campusId, null);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(resourceMock, response.getBody());
@@ -68,11 +74,11 @@ public class FileDownloadControllerTest {
     public void serveCampusesListXMLTest() {
         Resource resourceMock = Mockito.mock(Resource.class);
 
-        when(storageServiceMock.loadAsResourceFromDB("campusList", null)).thenReturn(resourceMock);
+        when(storageServiceMock.loadAsResourceFromDB("campusList", null, null)).thenReturn(resourceMock);
 
         ResponseEntity<Resource> response = fileDownloadController.serveCampusesListXML();
 
-        verify(storageServiceMock).loadAsResourceFromDB("campusList", null);
+        verify(storageServiceMock).loadAsResourceFromDB("campusList", null, null);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(resourceMock, response.getBody());

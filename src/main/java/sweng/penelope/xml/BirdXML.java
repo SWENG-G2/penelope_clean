@@ -28,6 +28,20 @@ public class BirdXML extends CommonXML {
         }
 
         /**
+         * Formats a resource url to include the server's url.
+         * 
+         * @param resourceUrl The resource url.
+         * @return
+         */
+        private String formatResourceUrl(String resourceUrl) {
+                String serverUrl = this.xmlConfiguration.getServerUrl();
+                if (serverUrl != null)
+                        return String.format("%s/%s", this.xmlConfiguration.getServerUrl(), resourceUrl);
+                else
+                        return resourceUrl;
+        }
+
+        /**
          * Adds the hero slide to the bird xml.
          * 
          * @param audioURL URL to the bird sound resource.
@@ -49,12 +63,14 @@ public class BirdXML extends CommonXML {
                                 .addAttribute(HEIGHT, WRAP_CONTENT)
                                 .addText(birdName);
                 // Title audio
-                heroSlide.addElement("audio").addAttribute(URL, audioURL).addAttribute("loop", "false")
+                heroSlide.addElement("audio").addAttribute(URL, formatResourceUrl(audioURL))
+                                .addAttribute("loop", "false")
                                 .addAttribute(X_COORDINATE, END_OF_PARENT)
                                 .addAttribute(Y_COORDINATE, "0");
 
                 // Image
-                heroSlide.addElement("image").addAttribute(URL, imageURL).addAttribute(WIDTH, HERO_IMAGE_WIDTH)
+                heroSlide.addElement("image").addAttribute(URL, formatResourceUrl(imageURL))
+                                .addAttribute(WIDTH, HERO_IMAGE_WIDTH)
                                 .addAttribute(HEIGHT, "360")
                                 .addAttribute(X_COORDINATE, CENTER_IN_PARENT)
                                 .addAttribute(Y_COORDINATE, "115");
@@ -84,7 +100,7 @@ public class BirdXML extends CommonXML {
                 aboutMeSlide.addElement("video").addAttribute(X_COORDINATE, CENTER_IN_PARENT)
                                 .addAttribute(Y_COORDINATE, "0").addAttribute(WIDTH, "1820") // Slide Width - 100
                                 .addAttribute(HEIGHT, "250").addAttribute("loop", "false")
-                                .addAttribute(URL, aboutMeVideoURL);
+                                .addAttribute(URL, formatResourceUrl(aboutMeVideoURL));
 
                 // Add description
                 aboutMeSlide.addElement("text").addAttribute(X_COORDINATE, "20").addAttribute(Y_COORDINATE, "250")
@@ -107,7 +123,8 @@ public class BirdXML extends CommonXML {
                                 .addAttribute("title", "Diet");
 
                 // Image
-                dietSlide.addElement("image").addAttribute(URL, dietImageURL).addAttribute(WIDTH, HERO_IMAGE_WIDTH)
+                dietSlide.addElement("image").addAttribute(URL, formatResourceUrl(dietImageURL))
+                                .addAttribute(WIDTH, HERO_IMAGE_WIDTH)
                                 .addAttribute(HEIGHT, "200")
                                 .addAttribute(X_COORDINATE, CENTER_IN_PARENT)
                                 .addAttribute(Y_COORDINATE, "0");
@@ -133,7 +150,8 @@ public class BirdXML extends CommonXML {
                                 .addAttribute("title", "Location");
 
                 // Image
-                dietSlide.addElement("image").addAttribute(URL, locationImageURL).addAttribute(WIDTH, HERO_IMAGE_WIDTH)
+                dietSlide.addElement("image").addAttribute(URL, formatResourceUrl(locationImageURL))
+                                .addAttribute(WIDTH, HERO_IMAGE_WIDTH)
                                 .addAttribute(HEIGHT, "200")
                                 .addAttribute(X_COORDINATE, CENTER_IN_PARENT)
                                 .addAttribute(Y_COORDINATE, "0");
