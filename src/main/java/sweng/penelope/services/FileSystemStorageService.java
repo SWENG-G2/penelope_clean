@@ -170,13 +170,14 @@ public class FileSystemStorageService implements StorageService {
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    private CampusXML getCampus(Long id) {
+    private CampusXML getCampus(Long id, String serverUrl) {
         CampusXML campusXML = null;
 
         Optional<Campus> requestCampus = campusRepository.findById(id);
         if (requestCampus.isPresent()) {
             Campus campus = requestCampus.get();
             XMLConfiguration xmlConfiguration = new XMLConfiguration(campus.getAuthor(), campus.getName(), id);
+            xmlConfiguration.setServerUrl(serverUrl);
             campusXML = new CampusXML(xmlConfiguration);
 
             Iterator<Bird> birdsIterator = campus.getBirds().iterator();
@@ -225,7 +226,7 @@ public class FileSystemStorageService implements StorageService {
     public Resource loadAsResourceFromDB(String type, Long id, String serverUrl) {
         CommonXML xml = null;
         if (type.equals("campus"))
-            xml = getCampus(id);
+            xml = getCampus(id, serverUrl);
         else if (type.equals("bird"))
             xml = getBird(id, serverUrl);
         else if (type.equals("usersList"))

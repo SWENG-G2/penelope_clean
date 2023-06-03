@@ -60,11 +60,14 @@ public class FileDownloadControllerTest {
         Long campusId = 1L;
         Resource resourceMock = Mockito.mock(Resource.class);
 
-        when(storageServiceMock.loadAsResourceFromDB("campus", campusId, null)).thenReturn(resourceMock);
+        when(storageServiceMock.loadAsResourceFromDB(eq("campus"), eq(campusId), anyString())).thenReturn(resourceMock);
+        
+        MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
+        mockHttpServletRequest.setMethod("GET");
 
-        ResponseEntity<Resource> response = fileDownloadController.serveCampusXML(campusId);
+        ResponseEntity<Resource> response = fileDownloadController.serveCampusXML(campusId, mockHttpServletRequest);
 
-        verify(storageServiceMock).loadAsResourceFromDB("campus", campusId, null);
+        verify(storageServiceMock).loadAsResourceFromDB(eq("campus"), eq(campusId), anyString());
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(resourceMock, response.getBody());

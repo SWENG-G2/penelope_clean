@@ -89,6 +89,14 @@ public class FileDownloadController {
      * @param birdId The ID of the desired bird.
      * @return {@link ResponseEntity}
      */
+
+     /**
+      * Returns the xml containing information about the desired bird.
+
+      * @param birdId The ID of the desired bird.
+      * @param request The {@link HttpServletRequest} request.
+      * @return {@link ResponseEntity}
+      */
     @GetMapping(path = "/bird/{birdId}")
     @Cacheable(CacheUtils.BIRDS)
     @ApiOperation("Returns the xml containing information about the desired bird.")
@@ -108,14 +116,20 @@ public class FileDownloadController {
      * Returns the xml containing information about the desired campus.
      * 
      * @param campusId The ID of the desired campus.
+     * @param request The {@link HttpServletRequest} request.
      * @return {@link ResponseEntity}
      */
     @GetMapping(path = "/campus/{campusId}")
     @Cacheable(CacheUtils.CAMPUSES)
     @ApiOperation("Returns the xml containing information about the desired campus.")
     public ResponseEntity<Resource> serveCampusXML(
-            @ApiParam("The ID of the desired campus.") @PathVariable Long campusId) {
-        Resource resource = storageService.loadAsResourceFromDB("campus", campusId, null);
+            @ApiParam("The ID of the desired campus.") @PathVariable Long campusId,
+            @ApiIgnore HttpServletRequest request) {
+        String serverUrl = ServletUriComponentsBuilder.fromRequestUri(request)
+                .replacePath(null)
+                .build()
+                .toUriString();
+        Resource resource = storageService.loadAsResourceFromDB("campus", campusId, serverUrl);
 
         return provideXMLResponse(resource);
     }

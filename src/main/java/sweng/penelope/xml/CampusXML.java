@@ -59,7 +59,7 @@ public class CampusXML extends CommonXML {
                 .addText(formatDescription(description));
 
         // Image
-        duckSlide.addElement("image").addAttribute("url", imageURL).addAttribute(WIDTH, "480") // 1920 / 4
+        duckSlide.addElement("image").addAttribute("url", formatResourceUrl(imageURL)).addAttribute(WIDTH, "480") // 1920 / 4
                 .addAttribute(HEIGHT, MATCH_WIDTH_CLIENT_SIDE).addAttribute(X_COORDINATE, "0")
                 .addAttribute(Y_COORDINATE, "0");
 

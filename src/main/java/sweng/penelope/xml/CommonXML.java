@@ -82,6 +82,20 @@ public class CommonXML {
     }
 
     /**
+     * Formats a resource url to include the server's url.
+     * 
+     * @param resourceUrl The resource url.
+     * @return
+     */
+    protected String formatResourceUrl(String resourceUrl) {
+        String serverUrl = this.xmlConfiguration.getServerUrl();
+        if (serverUrl != null)
+            return String.format("%s/%s", this.xmlConfiguration.getServerUrl(), resourceUrl);
+        else
+            return resourceUrl;
+    }
+
+    /**
      * Creates the xml document via Dom4J utilities.
      */
     private void createDocument() {
