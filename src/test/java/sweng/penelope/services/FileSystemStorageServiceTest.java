@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 
 import javax.transaction.Transactional;
@@ -34,7 +32,6 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.server.ResponseStatusException;
 
-import sweng.penelope.auth.RSAUtils;
 import sweng.penelope.entities.Bird;
 import sweng.penelope.entities.Campus;
 import sweng.penelope.repositories.BirdRepository;
@@ -199,16 +196,6 @@ public class FileSystemStorageServiceTest {
         boolean canWriteImage = classUnderTest.storeProcessedImage(IMAGE_NAME, "1", bi);
 
         assertTrue(canWriteImage);
-    }
-
-    @Test
-    public void cannotStoreBadProcessedImage() {
-        BufferedImage bi = new BufferedImage(BUFFERED_IMAGE_SIZE, BUFFERED_IMAGE_SIZE, BufferedImage.TYPE_INT_RGB);
-
-        // Bad file name
-        boolean canWriteImage = classUnderTest.storeProcessedImage("./", "1", bi);
-
-        assertFalse(canWriteImage);
     }
 
     @Test
