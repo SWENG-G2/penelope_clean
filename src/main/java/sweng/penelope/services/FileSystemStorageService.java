@@ -112,7 +112,7 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public boolean storeProcessedImage(String fileName, String campusId, BufferedImage image) {
         Path destinationRoot = Paths.get(baseString, "image", campusId);
-        File outFile = Paths.get(baseString, "image", campusId, fileName).toFile();
+        File outFile = destinationRoot.resolve(fileName).toFile();
         try {
             createDir(destinationRoot);
             ImageIO.write(image, "png", outFile);

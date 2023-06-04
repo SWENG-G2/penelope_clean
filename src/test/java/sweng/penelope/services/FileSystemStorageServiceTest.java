@@ -206,7 +206,7 @@ public class FileSystemStorageServiceTest {
         BufferedImage bi = new BufferedImage(BUFFERED_IMAGE_SIZE, BUFFERED_IMAGE_SIZE, BufferedImage.TYPE_INT_RGB);
 
         // Bad file name
-        boolean canWriteImage = classUnderTest.storeProcessedImage(".", "1", bi);
+        boolean canWriteImage = classUnderTest.storeProcessedImage("./", "1", bi);
 
         assertFalse(canWriteImage);
     }
