@@ -68,6 +68,8 @@ public class BirdXML extends CommonXML {
                                 .addAttribute(COLOUR, TRANSPARENT)
                                 .addAttribute(BORDER_WIDTH, "15")
                                 .addAttribute(BORDER_COLOUR, DARK_GRAY);
+
+                incrementNumSlides();
         }
 
         /**
@@ -94,6 +96,8 @@ public class BirdXML extends CommonXML {
                                 .addAttribute(FONT_SIZE, FONT_SIZE_BODY).addAttribute(WIDTH, TEXT_WIDTH)
                                 .addAttribute(HEIGHT, WRAP_CONTENT)
                                 .addText(aboutMe);
+
+                incrementNumSlides();
         }
 
         /**
@@ -121,6 +125,8 @@ public class BirdXML extends CommonXML {
                                 .addAttribute(FONT_SIZE, FONT_SIZE_BODY).addAttribute(WIDTH, TEXT_WIDTH)
                                 .addAttribute(HEIGHT, WRAP_CONTENT)
                                 .addText(diet);
+
+                incrementNumSlides();
         }
 
         /**
@@ -148,5 +154,7 @@ public class BirdXML extends CommonXML {
                                 .addAttribute(FONT_SIZE, FONT_SIZE_BODY).addAttribute(WIDTH, TEXT_WIDTH)
                                 .addAttribute(HEIGHT, WRAP_CONTENT)
                                 .addText(location);
+
+                incrementNumSlides();
         }
 }
