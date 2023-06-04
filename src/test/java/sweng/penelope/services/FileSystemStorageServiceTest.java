@@ -41,7 +41,6 @@ import sweng.penelope.repositories.CampusRepository;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class FileSystemStorageServiceTest {
-    private static Path keysBasePath;
     private static Path basePath;
     private static Path videoPath;
     private static Path audioPath;
@@ -85,7 +84,6 @@ public class FileSystemStorageServiceTest {
     @AfterEach
     public void cleanUp() throws IOException {
         FileSystemUtils.deleteRecursively(basePath);
-        FileSystemUtils.deleteRecursively(keysBasePath);
 
         birdRepository.deleteAll();
         campusRepository.deleteAll();
@@ -95,7 +93,6 @@ public class FileSystemStorageServiceTest {
     public void initCanFailWithBadPath() {
         // Try to write to root fs
         ReflectionTestUtils.setField(classUnderTest, "baseString", "/");
-        ReflectionTestUtils.setField(classUnderTest, "keysBaseString", "/");
 
         assertThrows(StorageException.class, () -> {
             classUnderTest.init();
@@ -107,7 +104,6 @@ public class FileSystemStorageServiceTest {
 
     @Test
     public void canInitialiseFs() {
-        assertTrue(Files.exists(keysBasePath));
         assertTrue(Files.exists(videoPath));
         assertTrue(Files.exists(audioPath));
         assertTrue(Files.exists(imagePath));
@@ -116,7 +112,6 @@ public class FileSystemStorageServiceTest {
     @Test
     public void attemptsToRecreateFS() {
         // Folders already exist
-        assertTrue(Files.exists(keysBasePath));
         assertTrue(Files.exists(videoPath));
         assertTrue(Files.exists(audioPath));
         assertTrue(Files.exists(imagePath));
@@ -124,7 +119,6 @@ public class FileSystemStorageServiceTest {
         classUnderTest.init();
 
         // Folders still exist after init
-        assertTrue(Files.exists(keysBasePath));
         assertTrue(Files.exists(videoPath));
         assertTrue(Files.exists(audioPath));
         assertTrue(Files.exists(imagePath));
