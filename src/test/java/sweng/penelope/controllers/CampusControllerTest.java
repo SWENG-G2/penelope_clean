@@ -1,7 +1,11 @@
 package sweng.penelope.controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.security.KeyPair;
@@ -165,6 +169,122 @@ public class CampusControllerTest {
 
                 mockMvc.perform(request)
                                 .andExpect(status().isOk());
+        }
+
+        @Test
+        public void canEditAsAdmin() throws Exception {
+                // Insert fake campus
+                Campus testCampus = new Campus();
+                testCampus.setName("test campus");
+                testCampus.setAuthor(USERNAME);
+                testCampus = campusRepository.save(testCampus);
+
+                testCampusID = testCampus.getId().toString();
+
+                String newName = "New name";
+
+                MockHttpServletRequestBuilder request = patch(formatAddress("edit"))
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
+                                .param("id", testCampusID)
+                                .param("newName", newName).secure(true);
+
+                mockMvc.perform(request)
+                                .andExpect(status().isOk());
+
+                campusRepository.findById(testCampus.getId()).ifPresentOrElse((campus) -> {
+                        assertEquals(newName, campus.getName());
+                }, () -> {
+                        fail();
+                });
+
+        }
+
+        @Test
+        public void cannotEditIfNotAdmin() throws Exception {
+                // Insert fake campus
+                Campus testCampus = new Campus();
+                testCampus.setName("test campus");
+                testCampus.setAuthor(USERNAME);
+                testCampus = campusRepository.save(testCampus);
+
+                testCampusID = testCampus.getId().toString();
+
+                // Insert a user
+                String testUsername = "User123";
+                String testPassword = passwordEncoder.encode("Password123");
+                DataManager testUser = new DataManager();
+                testUser.setUsername(testUsername);
+                testUser.setPassword(testPassword);
+                testUser.setSysadmin(false);
+                testUser = dataManagerRepository.save(testUser);
+
+                String testCredentials = testUsername + "=" + "Password123" + "=" + TIMESTAMP;
+                String testEncryptedCredentials = RSAUtils.encrypt(keyPair.getPublic(), testCredentials);
+
+                String newName = "New name";
+
+                MockHttpServletRequestBuilder request = patch(formatAddress("edit"))
+                                .header(credentialsHeader.toLowerCase(), testEncryptedCredentials)
+                                .param("id", testCampusID)
+                                .param("newName", newName).secure(true);
+
+                mockMvc.perform(request)
+                                .andExpect(status().isForbidden());
+        }
+
+        @Test
+        public void cannotEditMissingCampus() throws Exception {
+                String newName = "New name";
+
+                MockHttpServletRequestBuilder request = patch(formatAddress("edit"))
+                                .header(credentialsHeader.toLowerCase(), ENCRYPTED_CREDENTIALS)
+                                .param("id", "0")
+                                .param("newName", newName).secure(true);
+
+                mockMvc.perform(request)
+                                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        public void authorUpdates() throws Exception {
+                // Insert second admin
+                String username = "admin2";
+                String password = "pwd";
+                String credentials = username + "=" + password + "=" + TIMESTAMP;
+                String encryptedCredentials = RSAUtils.encrypt(keyPair.getPublic(), credentials);
+                String encodedPassword = passwordEncoder.encode(password);
+
+                DataManager mDataManager = new DataManager();
+                mDataManager.setUsername(username);
+                mDataManager.setPassword(encodedPassword);
+                mDataManager.setSysadmin(true);
+                dataManagerRepository.save(mDataManager);
+
+                // Insert fake campus
+                Campus testCampus = new Campus();
+                testCampus.setName("test campus");
+                testCampus.setAuthor(USERNAME);
+                testCampus = campusRepository.save(testCampus);
+
+                testCampusID = testCampus.getId().toString();
+
+                String newName = "New name";
+
+                MockHttpServletRequestBuilder request = patch(formatAddress("edit"))
+                                .header(credentialsHeader.toLowerCase(), encryptedCredentials)
+                                .param("id", testCampusID)
+                                .param("newName", newName).secure(true);
+
+                mockMvc.perform(request)
+                                .andExpect(status().isOk());
+
+                campusRepository.findById(testCampus.getId()).ifPresentOrElse((campus) -> {
+                        String author = campus.getAuthor();
+                        assertTrue(author.contains(username));
+                        assertTrue(author.contains(USERNAME));
+                }, () -> {
+                        fail();
+                });
         }
 
 }

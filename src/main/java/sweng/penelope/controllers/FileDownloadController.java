@@ -72,13 +72,13 @@ public class FileDownloadController {
             try {
                 // Determine what type of asset it is
                 contentType = Files.probeContentType(Paths.get(resource.getURI()));
-            } catch (IOException e) {
+                // Infer correct media type
+                MediaType mediaType = MediaType.parseMediaType(contentType);
+                return provideResponse(resource, mediaType);
+            } catch (Exception e) {
                 e.printStackTrace();
                 return ResponseEntity.internalServerError().body(null);
             }
-            // Infer correct media type
-            MediaType mediaType = MediaType.parseMediaType(contentType);
-            return provideResponse(resource, mediaType);
         }
         return ResponseEntity.notFound().build();
     }

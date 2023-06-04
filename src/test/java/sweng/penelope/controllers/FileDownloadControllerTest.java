@@ -61,7 +61,7 @@ public class FileDownloadControllerTest {
         Resource resourceMock = Mockito.mock(Resource.class);
 
         when(storageServiceMock.loadAsResourceFromDB(eq("campus"), eq(campusId), anyString())).thenReturn(resourceMock);
-        
+
         MockHttpServletRequest mockHttpServletRequest = new MockHttpServletRequest();
         mockHttpServletRequest.setMethod("GET");
 
@@ -107,25 +107,42 @@ public class FileDownloadControllerTest {
     }
 
     @Test
-    public void serveAssetFailTest() throws URISyntaxException, IOException {
+    public void nullResourceServesNotFoundAsset() throws URISyntaxException, IOException {
+        String type = "image";
+        String campusId = "1";
+        String fileName = "classpath:duckTest.png";
+
+        when(storageServiceMock.loadAsResource(type, campusId, fileName)).thenReturn(null);
+
+        ResponseEntity<Resource> response = fileDownloadController.serveAsset(type, campusId, fileName);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    public void badResoruceServesInternalServerErrorAsset() throws URISyntaxException, IOException {
         String type = "image";
         String campusId = "1";
         String fileName = "classpath:duckTest.png";
         Resource resourceMock = Mockito.mock(Resource.class);
-        URI uri = defaultResourceLoader.getResource(fileName).getFile().toURI();
+        // Bad uri causes mime type to be null
+        URI uri = URI.create("file:///the/batcave");
 
         when(storageServiceMock.loadAsResource(type, campusId, fileName)).thenReturn(resourceMock);
         when(resourceMock.getURI()).thenReturn(uri);
 
         ResponseEntity<Resource> response = fileDownloadController.serveAsset(type, campusId, fileName);
 
-        verify(storageServiceMock).loadAsResource(type, campusId, fileName);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(resourceMock, response.getBody());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+    }
 
-        // Wrong content type on purpose, should be image/png
-        assertThrows(AssertionError.class, () -> {
-            assertEquals(MediaType.valueOf("video/mp4"), response.getHeaders().getContentType());
-        }, "Wrong content type");
+    @Test
+    public void nullResourceServersNotFoundXML() {
+        // Return null XML, type is arbitrary as same code is executed for all
+        when(storageServiceMock.loadAsResourceFromDB("campusList", null, null)).thenReturn(null);
+
+        ResponseEntity<Resource> response = fileDownloadController.serveCampusesListXML();
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

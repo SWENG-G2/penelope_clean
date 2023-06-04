@@ -17,6 +17,7 @@ import sweng.penelope.repositories.DataManagerRepository;
 
 @Service
 public class UserAuthenticationManager implements AuthenticationManager {
+    public static final int STALE_TIMEOUT_SECONDS = 60;
 
     @Autowired
     private DataManagerRepository dataManagerRepository;
@@ -40,14 +41,12 @@ public class UserAuthenticationManager implements AuthenticationManager {
         ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Europe/London"));
         ZonedDateTime sentAt = ZonedDateTime.parse(timestamp);
         Duration delta = Duration.between(now, sentAt);
-        if (delta.getSeconds() > 60)
+        if (Math.abs(delta.getSeconds()) > STALE_TIMEOUT_SECONDS)
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-
         // Verify username, password and claim
         dataManagerRepository.findById(username).ifPresentOrElse(dataManager -> {
             if (!passwordEncoder.matches(password, dataManager.getPassword()))
                 throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-
             if (!claim.equals("admin")) {
                 if (!dataManager.isSysadmin()) {
                     campusRepository.findById(Long.parseLong(claim)).ifPresentOrElse(campus -> {

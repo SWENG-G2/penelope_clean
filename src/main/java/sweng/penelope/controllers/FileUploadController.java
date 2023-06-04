@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
@@ -53,6 +54,8 @@ public class FileUploadController {
     private static final int RANDOM_STRING_LENGTH = 10;
     private final Random random = new Random();
 
+    private static final String[] ALLOWED_FILE_TYPES = { "image", "audio", "video" };
+
     /**
      * Transforms an input image into a rounded png.
      * 
@@ -87,12 +90,14 @@ public class FileUploadController {
 
             if (storageService.storeProcessedImage(processedFileName, campusId, outputImage))
                 return ResponseEntity.ok(String.format("image/%s/%s", campusId, processedFileName));
+            else
+                return ResponseEntity.internalServerError().body("Could not process image file");
+
         } catch (IOException e) {
             e.printStackTrace();
 
             return ResponseEntity.internalServerError().body("Could not process image file");
         }
-        return ResponseEntity.ok("null");
     }
 
     /**
@@ -111,7 +116,7 @@ public class FileUploadController {
             @ApiParam(value = "The file type", allowableValues = "image, audio, video") @RequestParam @NotNull String type,
             @ApiParam("Whether the file (image only) should be made into a round png") @RequestParam(required = false) boolean process,
             @ApiParam("The ID of the campus the resource belongs to") @PathVariable @NotNull Long campusId) {
-        if ((type.equals("audio") || type.equals("video") || type.equals("image"))) {
+        if (Arrays.stream(ALLOWED_FILE_TYPES).anyMatch(type::equals)) {
             String originalfileName = file.getOriginalFilename();
             if (originalfileName != null && !originalfileName.contains("..") && originalfileName.length() > 0) {
                 // Random string to ensure files are unique
@@ -122,9 +127,6 @@ public class FileUploadController {
 
                 // Get stripped file name
                 String fileName = Paths.get(originalfileName).getFileName().toString();
-
-                if (StringUtils.countOccurrencesOf(fileName, ".") > 1)
-                    return ResponseEntity.badRequest().body("File name cannot contain dots");
 
                 String[] splitFileName = fileName.split("\\.");
                 fileName = splitFileName[0] + "-" + randomString + "." + splitFileName[1];
