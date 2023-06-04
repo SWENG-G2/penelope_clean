@@ -49,9 +49,6 @@ public class FileSystemStorageService implements StorageService {
     @Value("${penelope.storage.base-folder}")
     private String baseString;
 
-    @Value("${penelope.storage.keys-folder}")
-    private String keysBaseString;
-
     @Autowired
     private BirdRepository birdRepository;
     @Autowired
@@ -66,7 +63,6 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public void init() {
-        Path keysBasePath = Paths.get(keysBaseString);
         Path basePath = Paths.get(baseString);
         Path videoPath = basePath.resolve("video");
         Path audioPath = basePath.resolve("audio");
@@ -75,7 +71,6 @@ public class FileSystemStorageService implements StorageService {
             createDir(videoPath);
             createDir(audioPath);
             createDir(imagePath);
-            createDir(keysBasePath);
         } catch (IOException ioException) {
             throw new StorageException("Could not create base directories structure", ioException);
         }

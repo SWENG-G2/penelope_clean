@@ -60,9 +60,6 @@ public class FileSystemStorageServiceTest {
     @Value("${penelope.storage.base-folder}")
     private String baseString;
 
-    @Value("${penelope.storage.keys-folder}")
-    private String keysBaseString;
-
     @Autowired
     private FileSystemStorageService classUnderTest;
 
@@ -74,7 +71,6 @@ public class FileSystemStorageServiceTest {
 
     @BeforeEach
     public void init() {
-        keysBasePath = Paths.get(keysBaseString);
         basePath = Paths.get(baseString);
         videoPath = basePath.resolve("video");
         audioPath = basePath.resolve("audio");
@@ -107,7 +103,6 @@ public class FileSystemStorageServiceTest {
 
         // Restore fields
         ReflectionTestUtils.setField(classUnderTest, "baseString", baseString);
-        ReflectionTestUtils.setField(classUnderTest, "keysBaseString", keysBaseString);
     }
 
     @Test

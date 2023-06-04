@@ -10,6 +10,8 @@ services:
       - penelope_net
     depends_on:
       - db
+    volumes:
+      - /var/penelope_storage:/var/penelope_storage
   db:
     image: postgres
     restart: always
