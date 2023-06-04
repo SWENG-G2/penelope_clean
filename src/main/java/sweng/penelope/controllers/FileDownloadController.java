@@ -90,15 +90,15 @@ public class FileDownloadController {
      * @return {@link ResponseEntity}
      */
 
-     /**
-      * Returns the xml containing information about the desired bird.
-
-      * @param birdId The ID of the desired bird.
-      * @param request The {@link HttpServletRequest} request.
-      * @return {@link ResponseEntity}
-      */
+    /**
+     * Returns the xml containing information about the desired bird.
+     * 
+     * @param birdId  The ID of the desired bird.
+     * @param request The {@link HttpServletRequest} request.
+     * @return {@link ResponseEntity}
+     */
     @GetMapping(path = "/bird/{birdId}")
-    @Cacheable(CacheUtils.BIRDS)
+    @Cacheable(value = CacheUtils.BIRDS, key = "#birdId")
     @ApiOperation("Returns the xml containing information about the desired bird.")
     public ResponseEntity<Resource> serveBirdXML(@ApiParam("The ID of the desired bird.") @PathVariable Long birdId,
             @ApiIgnore HttpServletRequest request) {
@@ -116,11 +116,11 @@ public class FileDownloadController {
      * Returns the xml containing information about the desired campus.
      * 
      * @param campusId The ID of the desired campus.
-     * @param request The {@link HttpServletRequest} request.
+     * @param request  The {@link HttpServletRequest} request.
      * @return {@link ResponseEntity}
      */
     @GetMapping(path = "/campus/{campusId}")
-    @Cacheable(CacheUtils.CAMPUSES)
+    @Cacheable(value = CacheUtils.CAMPUSES, key = "#campusId")
     @ApiOperation("Returns the xml containing information about the desired campus.")
     public ResponseEntity<Resource> serveCampusXML(
             @ApiParam("The ID of the desired campus.") @PathVariable Long campusId,

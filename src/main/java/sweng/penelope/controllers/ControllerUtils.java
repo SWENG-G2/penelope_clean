@@ -14,8 +14,6 @@ public class ControllerUtils {
      * @return {@link String} the author's email.
      */
     public static final String getAuthorName(Authentication authentication) {
-        String email = authentication.getPrincipal().toString().split("=")[0];
-
-        return email;
+        return authentication.getPrincipal().toString().split("=")[0];
     }
 }
