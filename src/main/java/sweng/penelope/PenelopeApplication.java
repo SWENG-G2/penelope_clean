@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder.BCryptVersion;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +23,7 @@ import sweng.penelope.services.StorageService;
 
 @SpringBootApplication
 @EnableCaching
+@PropertySource("classpath:application-ssl.properties")
 public class PenelopeApplication {
 	@Value("${penelope.adminUsername:}")
 	private String adminDefaultUsername;
