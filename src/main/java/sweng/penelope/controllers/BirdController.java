@@ -130,6 +130,7 @@ public class BirdController {
      * @param id               The bird's id
      * @param name             The bird's name - Optional
      * @param heroImageURL     URL to the main bird image - Optional
+     * @param listImageURL     URL to the bird's list image
      * @param soundURL         URL to the bird's sound - Optional
      * @param aboutMe          About the bird text information - Optional
      * @param aboutMeVideoURL  URL to the bird's video - Optional
@@ -147,6 +148,7 @@ public class BirdController {
             @ApiParam(value = "The bird's id") @RequestParam Long id,
             @ApiParam(value = "The bird's name") @RequestParam(required = false) Optional<String> name,
             @ApiParam(value = "URL to the main bird image") @RequestParam(required = false) Optional<String> heroImageURL,
+            @ApiParam(value = "URL to the bird's list image") @RequestParam(required = false) Optional<String> listImageURL,
             @ApiParam(value = "URL to the bird's sound") @RequestParam(required = false) Optional<String> soundURL,
             @ApiParam(value = "About the bird text information") @RequestParam(required = false) Optional<String> aboutMe,
             @ApiParam(value = "URL to the bird's video") @RequestParam(required = false) Optional<String> aboutMeVideoURL,
@@ -165,6 +167,7 @@ public class BirdController {
             evictBirdAssetsCache(bird);
 
             String oldHeroImageURL = bird.getHeroImageURL();
+            String oldListImageURL = bird.getListImageURL();
             String oldSoundURL = bird.getSoundURL();
             String oldAboutMeVideoURL = bird.getAboutMeVideoURL();
             String oldLocationImageURL = bird.getLocationImageURL();
@@ -172,6 +175,7 @@ public class BirdController {
 
             // Remove old assets
             heroImageURL.ifPresent(s -> storageService.remove(oldHeroImageURL));
+            listImageURL.ifPresent(s -> storageService.remove(oldListImageURL));
             soundURL.ifPresent(s -> storageService.remove(oldSoundURL));
             aboutMeVideoURL.ifPresent(s -> storageService.remove(oldAboutMeVideoURL));
             locationImageURL.ifPresent(s -> storageService.remove(oldLocationImageURL));
@@ -179,6 +183,7 @@ public class BirdController {
 
             // Update fields
             bird.setName(name.orElse(bird.getName()));
+            bird.setListImageURL(listImageURL.orElse(bird.getListImageURL()));
             bird.setHeroImageURL(heroImageURL.orElse(bird.getHeroImageURL()));
             bird.setSoundURL(soundURL.orElse(bird.getSoundURL()));
             bird.setAboutMe(aboutMe.orElse(bird.getAboutMe()));
