@@ -23,7 +23,7 @@ import sweng.penelope.services.StorageService;
 
 @SpringBootApplication
 @EnableCaching
-@PropertySource("classpath:application-ssl.properties")
+@PropertySource("classpath:application-marking.properties")
 public class PenelopeApplication {
 	@Value("${penelope.adminUsername:}")
 	private String adminDefaultUsername;
