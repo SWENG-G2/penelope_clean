@@ -102,7 +102,7 @@ public class CommonXML {
         document = DocumentHelper.createDocument();
         // Add namespace
         presentation = document.addElement("presentation", "urn:SWENG").addNamespace("SWENG",
-                "https://raw.githubusercontent.com/SWENG-G2/xml_standard/proposal-1/standard.xsd");
+                "https://raw.githubusercontent.com/SWENG-G2/xml_standard/main/standard.xsd");
 
         // Presentation info
         info = presentation.addElement("info");
